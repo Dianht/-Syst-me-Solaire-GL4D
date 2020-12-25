@@ -33,6 +33,10 @@ static surface_t * _mercure = NULL;
 static surface_t * _venus = NULL;
 static surface_t * _terre = NULL;
 static surface_t * _mars = NULL;
+static surface_t * _jupiter = NULL;
+static surface_t * _saturne = NULL;
+static surface_t * _uranus = NULL;
+static surface_t * _neptune = NULL;
 /*!\brief une surface représentant un cube */
 const char * planete_tex[9] = {
   "images/Soleil.bmp",
@@ -119,6 +123,30 @@ void init(void) {
   enableSurfaceOption(_mars, SO_USE_TEXTURE);
   enableSurfaceOption(_mars, SO_USE_LIGHTING);
 
+  _jupiter = mkSphere(30, 30); 
+  _jupiter->dcolor = w; 
+  setTexId(_jupiter, id[5]);
+  enableSurfaceOption(_jupiter, SO_USE_TEXTURE);
+  enableSurfaceOption(_jupiter, SO_USE_LIGHTING);
+
+  _saturne = mkSphere(30, 30); 
+  _saturne->dcolor = w; 
+  setTexId(_saturne, id[6]);
+  enableSurfaceOption(_saturne, SO_USE_TEXTURE);
+  enableSurfaceOption(_saturne, SO_USE_LIGHTING);
+
+  _uranus = mkSphere(30, 30); 
+  _uranus->dcolor = w; 
+  setTexId(_uranus, id[7]);
+  enableSurfaceOption(_uranus, SO_USE_TEXTURE);
+  enableSurfaceOption(_uranus, SO_USE_LIGHTING);
+  
+  _neptune = mkSphere(30, 30); 
+  _neptune->dcolor = w; 
+  setTexId(_neptune, id[8]);
+  enableSurfaceOption(_neptune, SO_USE_TEXTURE);
+  enableSurfaceOption(_neptune, SO_USE_LIGHTING);
+
   atexit(sortie);
 }
 
@@ -137,7 +165,7 @@ void draw(void) {
   /* charger la matrice identité dans model-view */
   MIDENTITY(mvMat);
   /* on place la caméra en arrière-haut, elle regarde le centre de la scène */
-  lookAt(mvMat, 0, _ycam, 50, 0, 0, 0, 0, 1, 0);
+  lookAt(mvMat, 0, _ycam, 100, 10, 0, 0, 0, 1, 0);
   /* le quadrilatère est mis à gauche et tourne autour de son axe x */
   /* la sphère est laissée au centre et tourne autour de son axe y */
   memcpy(nmv, mvMat, sizeof nmv); 
@@ -148,7 +176,6 @@ void draw(void) {
     /* le quadrilatère est mis à gauche et tourne autour de son axe x */
   /* la sphère est laissée au centre et tourne autour de son axe y */
   memcpy(nmv, mvMat, sizeof nmv); 
-  scale(nmv,0.0f,0.3f,0.0f);
   translate(nmv,8.0f,0.0f,0.0f);
   rotate(nmv, a, 5.0f, 5.0f, 5.0f);
   transform_n_raster(_mercure, nmv, projMat);  /* le quadrilatère est mis à gauche et tourne autour de son axe x */
@@ -171,6 +198,30 @@ void draw(void) {
   translate(nmv,19.0f,0.0f,0.0f); 
   rotate(nmv, a, 5.0f, 5.0f, 5.0f);
   transform_n_raster(_mars, nmv, projMat);
+
+  memcpy(nmv, mvMat, sizeof nmv);
+  scale(nmv,3.0f,3.8f,3.0f);
+  translate(nmv,11.0f,0.0f,0.0f); 
+  rotate(nmv, a, 5.0f, 5.0f, 5.0f);
+  transform_n_raster(_jupiter, nmv, projMat);
+
+  memcpy(nmv, mvMat, sizeof nmv);
+  scale(nmv,2.0f,2.8f,2.0f);
+  translate(nmv,20.0f,0.0f,0.0f); 
+  rotate(nmv, a, 5.0f, 5.0f, 5.0f);
+  transform_n_raster(_saturne, nmv, projMat);
+
+  memcpy(nmv, mvMat, sizeof nmv);
+  scale(nmv,1.2f,1.5f,1.2f);
+  translate(nmv,38.0f,0.0f,0.0f); 
+  rotate(nmv, a, 5.0f, 5.0f, 5.0f);
+  transform_n_raster(_uranus, nmv, projMat);
+
+  memcpy(nmv, mvMat, sizeof nmv);
+  scale(nmv,1.5f,1.8f,1.5f);
+  translate(nmv,34.0f,0.0f,0.0f); 
+  rotate(nmv, a, 5.0f, 5.0f, 5.0f);
+  transform_n_raster(_neptune, nmv, projMat);
 
   /* déclarer qu'on a changé (en bas niveau) des pixels du screen  */
   gl4dpScreenHasChanged();
