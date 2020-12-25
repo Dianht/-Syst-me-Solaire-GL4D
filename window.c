@@ -22,31 +22,42 @@
 /* protos de fonctions locales (static) */
 static void init(void);
 static void draw(void);
-static void key(int keycode);
 static void sortie(void);
 
 /*!\brief un identifiant pour l'écran (de dessin) */
 static GLuint _screenId = 0;
 
 /*!\brief une surface représentant un quadrilatère */
-static surface_t * _quad = NULL;
+static surface_t * _soleil = NULL;
+static surface_t * _mercure = NULL;
+static surface_t * _venus = NULL;
+static surface_t * _terre = NULL;
+static surface_t * _mars = NULL;
 /*!\brief une surface représentant un cube */
-static surface_t * _cube = NULL;
-/*!\brief une surface représentant une sphere */
-static surface_t * _sphere = NULL;
+const char * planete_tex[9] = {
+  "images/Soleil.bmp",
+  "images/Mercure.bmp",
+  "images/Venus.bmp",
+  "images/Terre.bmp",
+  "images/Mars.bmp",
+  "images/Jupiter.bmp",
+  "images/Saturne.bmp",
+  "images/Uranus.bmp",
+  "images/Neptune.bmp",
+};
 
 /* des variable d'états pour activer/désactiver des options de rendu */
 static int _use_tex = 1, _use_color = 1, _use_lighting = 1;
 
 /*!\brief on peut bouger la caméra vers le haut et vers le bas avec cette variable */
-static float _ycam = 3.0f;
+static float _ycam = 0.0f;
 
 /*!\brief paramètre l'application et lance la boucle infinie. */
 int main(int argc, char ** argv) {
   /* tentative de création d'une fenêtre pour GL4Dummies */
   if(!gl4duwCreateWindow(argc, argv, /* args du programme */
 			 "Mon moteur de rendu <<Maison>>", /* titre */
-			 10, 10, 640, 480, /* x, y, largeur, heuteur */
+			 10, 10, 800, 600, /* x, y, largeur, heuteur */
 			 GL4DW_SHOWN) /* état visible */) {
     /* ici si échec de la création souvent lié à un problème d'absence
      * de contexte graphique ou d'impossibilité d'ouverture d'un
@@ -60,7 +71,6 @@ int main(int argc, char ** argv) {
    * pouvons dessiner) aux dimensions de la fenêtre */
   _screenId = gl4dpInitScreen();
   /* mettre en place la fonction d'interception clavier */
-  gl4duwKeyDownFunc(key);
   /* mettre en place la fonction de display */
   gl4duwDisplayFunc(draw);
   /* boucle infinie pour éviter que le programme ne s'arrête et ferme
@@ -72,36 +82,43 @@ int main(int argc, char ** argv) {
 /*!\brief init de nos données, spécialement les trois surfaces
  * utilisées dans ce code */
 void init(void) {
-  GLuint id;
-  vec4 r = {1, 0, 0, 1}, g = {0, 1, 0, 1}, b = {0, 0, 1, 1};
+  int i;
+  GLuint id[10];
+  vec4 r = {1, 0, 0, 1}, g = {0, 1, 0, 1}, b = {0, 0, 1, 1},w = {1, 1, 1, 1};
   /* on créé nos trois type de surfaces */
-  _quad   =   mkQuad();       /* ça fait 2 triangles        */
-  _cube   =   mkCube();       /* ça fait 2x6 triangles      */
-  _sphere = mkSphere(12, 12); /* ça fait 12x12x2 trianles ! */
-  /* on change les couleurs de surfaces */
-  _quad->dcolor = r; _cube->dcolor = b; _sphere->dcolor = g; 
-  /* on leur rajoute la même texture */
-  id = getTexFromBMP("images/tex.bmp");
-  setTexId(  _quad, id);
-  setTexId(  _cube, id);
-  setTexId(_sphere, id);
-  /* si _use_tex != 0, on active l'utilisation de la texture pour les
-   * trois */
-  if(_use_tex) {
-    enableSurfaceOption(  _quad, SO_USE_TEXTURE);
-    enableSurfaceOption(  _cube, SO_USE_TEXTURE);
-    enableSurfaceOption(_sphere, SO_USE_TEXTURE);
-  }
-  /* si _use_lighting != 0, on active l'ombrage */
-  if(_use_lighting) {
-    enableSurfaceOption(  _quad, SO_USE_LIGHTING);
-    enableSurfaceOption(  _cube, SO_USE_LIGHTING);
-    enableSurfaceOption(_sphere, SO_USE_LIGHTING);
-  }
-  /* on désactive le back cull face pour le quadrilatère, ainsi on
-   * peut voir son arrière quand le lighting est inactif */
-  disableSurfaceOption(_quad, SO_CULL_BACKFACES);
-  /* mettre en place la fonction à appeler en cas de sortie */
+ for(i = 0;i < 9;i++){
+   id[i] = getTexFromBMP(planete_tex[i]);
+ }
+  _soleil = mkSphere(30, 30); 
+  _soleil->dcolor = w; 
+  setTexId(_soleil, id[0]);
+  enableSurfaceOption(_soleil, SO_USE_TEXTURE);
+  
+  _mercure = mkSphere(30, 30); 
+  _mercure->dcolor = w; 
+  setTexId(_mercure, id[1]);
+  enableSurfaceOption(_mercure, SO_USE_TEXTURE);
+  enableSurfaceOption(_mercure, SO_USE_LIGHTING);
+
+  _venus = mkSphere(30, 30); 
+  _venus->dcolor = w; 
+  setTexId(_venus, id[2]);
+  enableSurfaceOption(_venus, SO_USE_TEXTURE);
+  enableSurfaceOption(_venus, SO_USE_LIGHTING);
+
+
+  _terre = mkSphere(30, 30); 
+  _terre->dcolor = w; 
+  setTexId(_terre, id[3]);
+  enableSurfaceOption(_terre, SO_USE_TEXTURE);
+  enableSurfaceOption(_terre, SO_USE_LIGHTING);
+
+  _mars = mkSphere(30, 30); 
+  _mars->dcolor = w; 
+  setTexId(_mars, id[4]);
+  enableSurfaceOption(_mars, SO_USE_TEXTURE);
+  enableSurfaceOption(_mars, SO_USE_LIGHTING);
+
   atexit(sortie);
 }
 
@@ -120,21 +137,41 @@ void draw(void) {
   /* charger la matrice identité dans model-view */
   MIDENTITY(mvMat);
   /* on place la caméra en arrière-haut, elle regarde le centre de la scène */
-  lookAt(mvMat, 0, _ycam, 10, 0, 0, 0, 0, 1, 0);
+  lookAt(mvMat, 0, _ycam, 50, 0, 0, 0, 0, 1, 0);
   /* le quadrilatère est mis à gauche et tourne autour de son axe x */
-  memcpy(nmv, mvMat, sizeof nmv); /* copie mvMat dans nmv */
-  translate(nmv, -3.0f, 0.0f, 0.0f);
-  rotate(nmv, a, 1.0f, 0.0f, 0.0f);
-  transform_n_raster(_quad, nmv, projMat);
-  /* le cube est mis à droite et tourne autour de son axe z */
-  memcpy(nmv, mvMat, sizeof nmv); /* copie mvMat dans nmv */
-  translate(nmv, 3.0f, 0.0f, 0.0f);
-  rotate(nmv, a, 0.0f, 0.0f, 1.0f);
-  transform_n_raster(_cube, nmv, projMat);
   /* la sphère est laissée au centre et tourne autour de son axe y */
-  memcpy(nmv, mvMat, sizeof nmv); /* copie mvMat dans nmv */
-  rotate(nmv, a, 0.0f, 1.0f, 0.0f);
-  transform_n_raster(_sphere, nmv, projMat);
+  memcpy(nmv, mvMat, sizeof nmv); 
+  scale(nmv,5.0f,6.0f,5.0f);
+  translate(nmv,0.0f,0.0f,0.0f);
+  rotate(nmv, a, 0.0f, 5.0f, 0.0f);
+  transform_n_raster(_soleil, nmv, projMat);
+    /* le quadrilatère est mis à gauche et tourne autour de son axe x */
+  /* la sphère est laissée au centre et tourne autour de son axe y */
+  memcpy(nmv, mvMat, sizeof nmv); 
+  scale(nmv,0.0f,0.3f,0.0f);
+  translate(nmv,8.0f,0.0f,0.0f);
+  rotate(nmv, a, 5.0f, 5.0f, 5.0f);
+  transform_n_raster(_mercure, nmv, projMat);  /* le quadrilatère est mis à gauche et tourne autour de son axe x */
+  /* la sphère est laissée au centre et tourne autour de son axe y */
+  memcpy(nmv, mvMat, sizeof nmv); 
+  scale(nmv,1.2f,1.5f,1.2f);
+  translate(nmv,10.0f,0.0f,0.0f);
+  rotate(nmv, a, 5.0f, 5.0f, 5.0f);
+  transform_n_raster(_venus, nmv, projMat);  /* le quadrilatère est mis à gauche et tourne autour de son axe x */
+  /* la sphère est laissée au centre et tourne autour de son axe y */
+  memcpy(nmv, mvMat, sizeof nmv);
+  scale(nmv,1.5f,1.8f,1.5f);
+  translate(nmv,12.0f,0.0f,0.0f); 
+  rotate(nmv, a, 5.0f, 5.0f, 5.0f);
+  transform_n_raster(_terre, nmv, projMat);
+    /* le quadrilatère est mis à gauche et tourne autour de son axe x */
+  /* la sphère est laissée au centre et tourne autour de son axe y */
+  memcpy(nmv, mvMat, sizeof nmv);
+  scale(nmv,1.3f,1.6f,1.3f);
+  translate(nmv,19.0f,0.0f,0.0f); 
+  rotate(nmv, a, 5.0f, 5.0f, 5.0f);
+  transform_n_raster(_mars, nmv, projMat);
+
   /* déclarer qu'on a changé (en bas niveau) des pixels du screen  */
   gl4dpScreenHasChanged();
   /* fonction permettant de raffraîchir l'ensemble de la fenêtre*/
@@ -142,69 +179,13 @@ void draw(void) {
   a += 0.1f;
 }
 
-/*!\brief intercepte l'événement clavier pour modifier les options. */
-void key(int keycode) {
-  switch(keycode) {
-  case GL4DK_UP:
-    _ycam += 0.05f;
-    break;
-  case GL4DK_DOWN:
-    _ycam -= 0.05f;
-    break;
-  case GL4DK_t: /* 't' la texture */
-    _use_tex = !_use_tex;
-    if(_use_tex) {
-      enableSurfaceOption(  _quad, SO_USE_TEXTURE);
-      enableSurfaceOption(  _cube, SO_USE_TEXTURE);
-      enableSurfaceOption(_sphere, SO_USE_TEXTURE);
-    } else {
-      disableSurfaceOption(  _quad, SO_USE_TEXTURE);
-      disableSurfaceOption(  _cube, SO_USE_TEXTURE);
-      disableSurfaceOption(_sphere, SO_USE_TEXTURE);
-    }
-    break;
-  case GL4DK_c: /* 'c' utiliser la couleur */
-    _use_color = !_use_color;
-    if(_use_color) {
-      enableSurfaceOption(  _quad, SO_USE_COLOR);
-      enableSurfaceOption(  _cube, SO_USE_COLOR);
-      enableSurfaceOption(_sphere, SO_USE_COLOR);
-    } else { 
-      disableSurfaceOption(  _quad, SO_USE_COLOR);
-      disableSurfaceOption(  _cube, SO_USE_COLOR);
-      disableSurfaceOption(_sphere, SO_USE_COLOR);
-    }
-    break;
-  case GL4DK_l: /* 'l' utiliser l'ombrage par la méthode Gouraud */
-    _use_lighting = !_use_lighting;
-    if(_use_lighting) {
-      enableSurfaceOption(  _quad, SO_USE_LIGHTING);
-      enableSurfaceOption(  _cube, SO_USE_LIGHTING);
-      enableSurfaceOption(_sphere, SO_USE_LIGHTING);
-    } else { 
-      disableSurfaceOption(  _quad, SO_USE_LIGHTING);
-      disableSurfaceOption(  _cube, SO_USE_LIGHTING);
-      disableSurfaceOption(_sphere, SO_USE_LIGHTING);
-    }
-    break;
-  default: break;
-  }
-}
-
 /*!\brief à appeler à la sortie du programme. */
 void sortie(void) {
   /* on libère nos trois surfaces */
-  if(_quad) {
-    freeSurface(_quad);
-    _quad = NULL;
-  }
-  if(_cube) {
-    freeSurface(_cube);
-    _cube = NULL;
-  }
-  if(_sphere) {
-    freeSurface(_sphere);
-    _sphere = NULL;
+
+  if(_soleil) {
+    freeSurface(_soleil);
+    _soleil = NULL;
   }
   /* libère tous les objets produits par GL4Dummies, ici
    * principalement les screen */
