@@ -33,25 +33,26 @@ static surface_t * _mercure = NULL;
 static surface_t * _venus = NULL;
 static surface_t * _terre = NULL;
 static surface_t * _mars = NULL;
+static surface_t * _lune = NULL;
 static surface_t * _jupiter = NULL;
 static surface_t * _saturne = NULL;
 static surface_t * _uranus = NULL;
 static surface_t * _neptune = NULL;
 /*!\brief une surface représentant un cube */
-const char * planete_tex[9] = {
+const char * planete_tex[10] = {
   "images/Soleil.bmp",
   "images/Mercure.bmp",
   "images/Venus.bmp",
   "images/Terre.bmp",
+  "images/Lune.bmp",
   "images/Mars.bmp",
   "images/Jupiter.bmp",
   "images/Saturne.bmp",
   "images/Uranus.bmp",
   "images/Neptune.bmp",
+  
 };
 
-/* des variable d'états pour activer/désactiver des options de rendu */
-static int _use_tex = 1, _use_color = 1, _use_lighting = 1;
 
 /*!\brief on peut bouger la caméra vers le haut et vers le bas avec cette variable */
 static float _ycam = 0.0f;
@@ -90,7 +91,7 @@ void init(void) {
   GLuint id[10];
   vec4 r = {1, 0, 0, 1}, g = {0, 1, 0, 1}, b = {0, 0, 1, 1},w = {1, 1, 1, 1};
   /* on créé nos trois type de surfaces */
- for(i = 0;i < 9;i++){
+ for(i = 0;i < 10;i++){
    id[i] = getTexFromBMP(planete_tex[i]);
  }
   _soleil = mkSphere(30, 30); 
@@ -116,34 +117,40 @@ void init(void) {
   setTexId(_terre, id[3]);
   enableSurfaceOption(_terre, SO_USE_TEXTURE);
   enableSurfaceOption(_terre, SO_USE_LIGHTING);
+  
+  _lune = mkSphere(30, 30); 
+  _lune->dcolor = w; 
+  setTexId(_lune, id[4]);
+  enableSurfaceOption(_lune, SO_USE_TEXTURE);
+  enableSurfaceOption(_lune, SO_USE_LIGHTING);
 
   _mars = mkSphere(30, 30); 
   _mars->dcolor = w; 
-  setTexId(_mars, id[4]);
+  setTexId(_mars, id[5]);
   enableSurfaceOption(_mars, SO_USE_TEXTURE);
   enableSurfaceOption(_mars, SO_USE_LIGHTING);
 
   _jupiter = mkSphere(30, 30); 
   _jupiter->dcolor = w; 
-  setTexId(_jupiter, id[5]);
+  setTexId(_jupiter, id[6]);
   enableSurfaceOption(_jupiter, SO_USE_TEXTURE);
   enableSurfaceOption(_jupiter, SO_USE_LIGHTING);
 
   _saturne = mkSphere(30, 30); 
   _saturne->dcolor = w; 
-  setTexId(_saturne, id[6]);
+  setTexId(_saturne, id[7]);
   enableSurfaceOption(_saturne, SO_USE_TEXTURE);
   enableSurfaceOption(_saturne, SO_USE_LIGHTING);
 
   _uranus = mkSphere(30, 30); 
   _uranus->dcolor = w; 
-  setTexId(_uranus, id[7]);
+  setTexId(_uranus, id[8]);
   enableSurfaceOption(_uranus, SO_USE_TEXTURE);
   enableSurfaceOption(_uranus, SO_USE_LIGHTING);
   
   _neptune = mkSphere(30, 30); 
   _neptune->dcolor = w; 
-  setTexId(_neptune, id[8]);
+  setTexId(_neptune, id[9]);
   enableSurfaceOption(_neptune, SO_USE_TEXTURE);
   enableSurfaceOption(_neptune, SO_USE_LIGHTING);
 
@@ -154,6 +161,11 @@ void init(void) {
 void draw(void) {
   static float a = 0.0f;
   float mvMat[16], projMat[16], nmv[16];
+  static double t0 = 0, t, dt;
+  static GLfloat av= 0;
+  t = gl4dGetElapsedTime();
+  dt = (t - t0) / 100000.0;
+  t0 = t;
   /* effacer l'écran et le buffer de profondeur */
   gl4dpClearScreen();
   clearDepth();
@@ -165,7 +177,7 @@ void draw(void) {
   /* charger la matrice identité dans model-view */
   MIDENTITY(mvMat);
   /* on place la caméra en arrière-haut, elle regarde le centre de la scène */
-  lookAt(mvMat, 0, _ycam, 100, 10, 0, 0, 0, 1, 0);
+  lookAt(mvMat, 0, _ycam, 60, 17, 0, 0, 0, 1, 0);
   /* le quadrilatère est mis à gauche et tourne autour de son axe x */
   /* la sphère est laissée au centre et tourne autour de son axe y */
   memcpy(nmv, mvMat, sizeof nmv); 
@@ -173,6 +185,7 @@ void draw(void) {
   translate(nmv,0.0f,0.0f,0.0f);
   rotate(nmv, a, 0.0f, 5.0f, 0.0f);
   transform_n_raster(_soleil, nmv, projMat);
+
     /* le quadrilatère est mis à gauche et tourne autour de son axe x */
   /* la sphère est laissée au centre et tourne autour de son axe y */
   memcpy(nmv, mvMat, sizeof nmv); 
@@ -191,6 +204,14 @@ void draw(void) {
   translate(nmv,12.0f,0.0f,0.0f); 
   rotate(nmv, a, 5.0f, 5.0f, 5.0f);
   transform_n_raster(_terre, nmv, projMat);
+  /* le quadrilatère est mis à gauche et tourne autour de son axe x */
+  /* la sphère est laissée au centre et tourne autour de son axe y */
+  memcpy(nmv, mvMat, sizeof nmv);
+  scale(nmv,0.5f,0.5f,0.5f);
+  translate(nmv,41.0f,1.0f,0.0f); 
+  rotate(nmv, a, 5.0f, 5.0f, 5.0f);
+  transform_n_raster(_lune, nmv, projMat);
+  
     /* le quadrilatère est mis à gauche et tourne autour de son axe x */
   /* la sphère est laissée au centre et tourne autour de son axe y */
   memcpy(nmv, mvMat, sizeof nmv);
@@ -236,7 +257,25 @@ void sortie(void) {
 
   if(_soleil) {
     freeSurface(_soleil);
+    freeSurface(_mercure);
+    freeSurface(_venus);
+    freeSurface(_terre);
+    freeSurface(_mars);
+    freeSurface(_jupiter);
+    freeSurface(_saturne);
+    freeSurface(_uranus);
+    freeSurface(_neptune);
+    freeSurface(_lune);
     _soleil = NULL;
+    _mercure = NULL;
+    _venus = NULL;
+    _terre = NULL;
+    _mars = NULL;
+    _jupiter = NULL;
+    _saturne = NULL;
+    _uranus = NULL;
+    _neptune = NULL;
+    _lune = NULL;
   }
   /* libère tous les objets produits par GL4Dummies, ici
    * principalement les screen */
