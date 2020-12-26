@@ -7,6 +7,7 @@
  * rotation pour qu'il soit dépendant du temps et non du framerate
  */
 #include <assert.h>
+#include <math.h>
 /* inclusion des entêtes de fonctions de gestion de primitives simples
  * de dessin. La lettre p signifie aussi bien primitive que
  * pédagogique. */
@@ -160,12 +161,13 @@ void init(void) {
 /*!\brief la fonction appelée à chaque display. */
 void draw(void) {
   static float a = 0.0f;
+  static float angle = 0.0f;
   float mvMat[16], projMat[16], nmv[16];
   static double t0 = 0, t, dt;
   static GLfloat av= 0;
-  t = gl4dGetElapsedTime();
-  dt = (t - t0) / 100000.0;
-  t0 = t;
+  static float x,y;
+  x = cos(angle) * 8;
+  y = sin(angle) * 8;
   /* effacer l'écran et le buffer de profondeur */
   gl4dpClearScreen();
   clearDepth();
@@ -177,20 +179,19 @@ void draw(void) {
   /* charger la matrice identité dans model-view */
   MIDENTITY(mvMat);
   /* on place la caméra en arrière-haut, elle regarde le centre de la scène */
-  lookAt(mvMat, 0, _ycam, 60, 17, 0, 0, 0, 1, 0);
+  lookAt(mvMat, 0, _ycam, 50, 0, 0, 0, 0, 1, 0);
   /* le quadrilatère est mis à gauche et tourne autour de son axe x */
   /* la sphère est laissée au centre et tourne autour de son axe y */
   memcpy(nmv, mvMat, sizeof nmv); 
   scale(nmv,5.0f,6.0f,5.0f);
-  translate(nmv,0.0f,0.0f,0.0f);
   rotate(nmv, a, 0.0f, 5.0f, 0.0f);
   transform_n_raster(_soleil, nmv, projMat);
 
     /* le quadrilatère est mis à gauche et tourne autour de son axe x */
   /* la sphère est laissée au centre et tourne autour de son axe y */
   memcpy(nmv, mvMat, sizeof nmv); 
-  translate(nmv,8.0f,0.0f,0.0f);
   rotate(nmv, a, 5.0f, 5.0f, 5.0f);
+  translate(nmv,y,0.0f,x);
   transform_n_raster(_mercure, nmv, projMat);  /* le quadrilatère est mis à gauche et tourne autour de son axe x */
   /* la sphère est laissée au centre et tourne autour de son axe y */
   memcpy(nmv, mvMat, sizeof nmv); 
@@ -249,6 +250,8 @@ void draw(void) {
   /* fonction permettant de raffraîchir l'ensemble de la fenêtre*/
   gl4dpUpdateScreen(NULL);
   a += 0.1f;
+  angle += 0.01;
+
 }
 
 /*!\brief à appeler à la sortie du programme. */
