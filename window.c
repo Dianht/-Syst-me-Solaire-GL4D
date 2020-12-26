@@ -24,7 +24,7 @@
 static void init(void);
 static void draw(void);
 static void sortie(void);
-
+static void rotate_sun(float * m, float angle,float rayon);
 /*!\brief un identifiant pour l'écran (de dessin) */
 static GLuint _screenId = 0;
 
@@ -56,7 +56,7 @@ const char * planete_tex[10] = {
 
 
 /*!\brief on peut bouger la caméra vers le haut et vers le bas avec cette variable */
-static float _ycam = 0.0f;
+static float _ycam = 120.0f;
 
 /*!\brief paramètre l'application et lance la boucle infinie. */
 int main(int argc, char ** argv) {
@@ -162,12 +162,11 @@ void init(void) {
 void draw(void) {
   static float a = 0.0f;
   static float angle = 0.0f;
+  static float angle_inv = 0.0f;
   float mvMat[16], projMat[16], nmv[16];
   static double t0 = 0, t, dt;
   static GLfloat av= 0;
-  static float x,y;
-  x = cos(angle) * 8;
-  y = sin(angle) * 8;
+
   /* effacer l'écran et le buffer de profondeur */
   gl4dpClearScreen();
   clearDepth();
@@ -179,7 +178,7 @@ void draw(void) {
   /* charger la matrice identité dans model-view */
   MIDENTITY(mvMat);
   /* on place la caméra en arrière-haut, elle regarde le centre de la scène */
-  lookAt(mvMat, 0, _ycam, 50, 0, 0, 0, 0, 1, 0);
+  lookAt(mvMat, 0, _ycam, 200, 0, 0, 0, 0, 1, 0);
   /* le quadrilatère est mis à gauche et tourne autour de son axe x */
   /* la sphère est laissée au centre et tourne autour de son axe y */
   memcpy(nmv, mvMat, sizeof nmv); 
@@ -190,59 +189,55 @@ void draw(void) {
     /* le quadrilatère est mis à gauche et tourne autour de son axe x */
   /* la sphère est laissée au centre et tourne autour de son axe y */
   memcpy(nmv, mvMat, sizeof nmv); 
-  rotate(nmv, a, 5.0f, 5.0f, 5.0f);
-  translate(nmv,y,0.0f,x);
+  //rotate(nmv, a, 5.0f, 5.0f, 5.0f);
+  rotate_sun(nmv,-angle,10.0f);
   transform_n_raster(_mercure, nmv, projMat);  /* le quadrilatère est mis à gauche et tourne autour de son axe x */
   /* la sphère est laissée au centre et tourne autour de son axe y */
   memcpy(nmv, mvMat, sizeof nmv); 
   scale(nmv,1.2f,1.5f,1.2f);
-  translate(nmv,10.0f,0.0f,0.0f);
-  rotate(nmv, a, 5.0f, 5.0f, 5.0f);
+  //rotate(nmv, a, 5.0f, 5.0f, 5.0f);
+  rotate_sun(nmv,angle + 2,15.0f);
   transform_n_raster(_venus, nmv, projMat);  /* le quadrilatère est mis à gauche et tourne autour de son axe x */
   /* la sphère est laissée au centre et tourne autour de son axe y */
   memcpy(nmv, mvMat, sizeof nmv);
   scale(nmv,1.5f,1.8f,1.5f);
-  translate(nmv,12.0f,0.0f,0.0f); 
-  rotate(nmv, a, 5.0f, 5.0f, 5.0f);
+  //rotate(nmv, a, 5.0f, 5.0f, 5.0f);
+  rotate_sun(nmv,angle_inv - 1.5,21.0f);
   transform_n_raster(_terre, nmv, projMat);
   /* le quadrilatère est mis à gauche et tourne autour de son axe x */
   /* la sphère est laissée au centre et tourne autour de son axe y */
-  memcpy(nmv, mvMat, sizeof nmv);
-  scale(nmv,0.5f,0.5f,0.5f);
-  translate(nmv,41.0f,1.0f,0.0f); 
-  rotate(nmv, a, 5.0f, 5.0f, 5.0f);
-  transform_n_raster(_lune, nmv, projMat);
+
   
     /* le quadrilatère est mis à gauche et tourne autour de son axe x */
   /* la sphère est laissée au centre et tourne autour de son axe y */
   memcpy(nmv, mvMat, sizeof nmv);
   scale(nmv,1.3f,1.6f,1.3f);
-  translate(nmv,19.0f,0.0f,0.0f); 
-  rotate(nmv, a, 5.0f, 5.0f, 5.0f);
+  //rotate(nmv, a, 5.0f, 5.0f, 5.0f);
+  rotate_sun(nmv,angle + 1,26.0f);
   transform_n_raster(_mars, nmv, projMat);
 
   memcpy(nmv, mvMat, sizeof nmv);
   scale(nmv,3.0f,3.8f,3.0f);
-  translate(nmv,11.0f,0.0f,0.0f); 
-  rotate(nmv, a, 5.0f, 5.0f, 5.0f);
+  //rotate(nmv, a, 5.0f, 5.0f, 5.0f);
+  rotate_sun(nmv,angle_inv,32.0f);
   transform_n_raster(_jupiter, nmv, projMat);
 
   memcpy(nmv, mvMat, sizeof nmv);
   scale(nmv,2.0f,2.8f,2.0f);
-  translate(nmv,20.0f,0.0f,0.0f); 
-  rotate(nmv, a, 5.0f, 5.0f, 5.0f);
+  //rotate(nmv, a, 5.0f, 5.0f, 5.0f);
+  rotate_sun(nmv,angle + 0.3,37.0f);
   transform_n_raster(_saturne, nmv, projMat);
 
   memcpy(nmv, mvMat, sizeof nmv);
   scale(nmv,1.2f,1.5f,1.2f);
-  translate(nmv,38.0f,0.0f,0.0f); 
-  rotate(nmv, a, 5.0f, 5.0f, 5.0f);
+  //rotate(nmv, a, 5.0f, 5.0f, 5.0f);
+  rotate_sun(nmv,angle_inv + 0.3,43.0f);
   transform_n_raster(_uranus, nmv, projMat);
 
   memcpy(nmv, mvMat, sizeof nmv);
   scale(nmv,1.5f,1.8f,1.5f);
-  translate(nmv,34.0f,0.0f,0.0f); 
-  rotate(nmv, a, 5.0f, 5.0f, 5.0f);
+  //rotate(nmv, a, 5.0f, 5.0f, 5.0f);
+  rotate_sun(nmv,angle_inv + 0.3,46.0f);
   transform_n_raster(_neptune, nmv, projMat);
 
   /* déclarer qu'on a changé (en bas niveau) des pixels du screen  */
@@ -251,7 +246,15 @@ void draw(void) {
   gl4dpUpdateScreen(NULL);
   a += 0.1f;
   angle += 0.01;
+  angle_inv -= 0.01;
 
+}
+void rotate_sun(float * m, float angle, float rayon) {
+    float x, y;
+    x = cos(angle) * rayon;
+    y = sin(angle) * rayon;
+    
+    translate(m,y,0.0f,x);
 }
 
 /*!\brief à appeler à la sortie du programme. */
