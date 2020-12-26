@@ -23,6 +23,7 @@
 /* protos de fonctions locales (static) */
 static void init(void);
 static void draw(void);
+static void key(int keycode);
 static void sortie(void);
 static void rotate_sun(float * m, float angle,float rayon);
 /*!\brief un identifiant pour l'écran (de dessin) */
@@ -56,7 +57,23 @@ const char * planete_tex[10] = {
 
 
 /*!\brief on peut bouger la caméra vers le haut et vers le bas avec cette variable */
-static float _ycam = 120.0f;
+static float _ycam = 3.0f;
+static float a = 0.0f;
+static float angle = 0.0f;
+static float angle_inv = 0.0f;
+static int vue_soleil = 0;
+static int vue_mercure = 0;
+static int vue_venus = 0;
+static int vue_terre = 0;
+static int vue_mars = 0;
+static int vue_jupiter = 0;
+static int vue_saturne = 0;
+static int vue_uranus = 0;
+static int vue_neptune = 0;
+
+static int _temps = 0;
+static int vue_x = 80;
+static int vue_y = 50;
 
 /*!\brief paramètre l'application et lance la boucle infinie. */
 int main(int argc, char ** argv) {
@@ -77,6 +94,8 @@ int main(int argc, char ** argv) {
    * pouvons dessiner) aux dimensions de la fenêtre */
   _screenId = gl4dpInitScreen();
   /* mettre en place la fonction d'interception clavier */
+    gl4duwKeyDownFunc(key);
+
   /* mettre en place la fonction de display */
   gl4duwDisplayFunc(draw);
   /* boucle infinie pour éviter que le programme ne s'arrête et ferme
@@ -160,9 +179,6 @@ void init(void) {
 
 /*!\brief la fonction appelée à chaque display. */
 void draw(void) {
-  static float a = 0.0f;
-  static float angle = 0.0f;
-  static float angle_inv = 0.0f;
   float mvMat[16], projMat[16], nmv[16];
   static double t0 = 0, t, dt;
   static GLfloat av= 0;
@@ -178,75 +194,142 @@ void draw(void) {
   /* charger la matrice identité dans model-view */
   MIDENTITY(mvMat);
   /* on place la caméra en arrière-haut, elle regarde le centre de la scène */
-  lookAt(mvMat, 0, _ycam, 200, 0, 0, 0, 0, 1, 0);
-  /* le quadrilatère est mis à gauche et tourne autour de son axe x */
-  /* la sphère est laissée au centre et tourne autour de son axe y */
+
+  if(vue_soleil == 0){
+    vue_x = 80;
+    vue_y = 50;
+    lookAt(mvMat, vue_x, vue_y, 0, 0, 0, 0, 0, 1, 0);
+  }
+   else{
+    lookAt(mvMat, vue_x, vue_y, 0, 0, 0, 0, 0, 1, 0);
+    if (vue_y != 0){
+      vue_x -= 1;
+      vue_y -= 1;
+    }
+  }
+  /*
+  if (vue_mercure  == 0){
+    vue_x = 80;
+    vue_y = 50;
+    lookAt(mvMat, vue_x, vue_y, 0, 0, 0, 0, 0, 1, 0);
+  }
+  else{
+    
+    lookAt(mvMat, vue_x, 20, 10, 0, 0, 0, 0, 1, 0);
+    }
+  if(vue_venus  == 0){
+
+  }else{
+
+  }
+  if(vue_terre == 0){
+
+  }else{
+
+  }
+  if(vue_mars  == 0){
+
+  }else{
+
+  }
+  if(vue_jupiter  == 0){
+  
+  }
+  else{
+
+  }
+  if(vue_saturne  == 0){
+
+  } 
+    if(vue_soleil == 0 || vue_mercure || vue_venus || vue_terre || vue_mars || vue_jupiter || vue_saturne || vue_uranus || vue_neptune) {
+    vue_x = 80;
+    vue_y = 50;
+    lookAt(mvMat, vue_x, vue_y, 0, 0, 0, 0, 0, 1, 0);
+  } else if (vue_soleil == 1){
+    lookAt(mvMat, vue_x, 50, 0, 0, 0, 0, 0, 1, 0);
+    if (vue_y != 0){
+      vue_x -= 1;
+      vue_y -= 1;
+    }
+  */
+  //Soleil//
   memcpy(nmv, mvMat, sizeof nmv); 
-  scale(nmv,5.0f,6.0f,5.0f);
-  rotate(nmv, a, 0.0f, 5.0f, 0.0f);
+  scale(nmv,9.0f,11.0f,9.0f);
+  rotate(nmv, a, 5.0f, 5.0f, 5.0f);
   transform_n_raster(_soleil, nmv, projMat);
 
-    /* le quadrilatère est mis à gauche et tourne autour de son axe x */
-  /* la sphère est laissée au centre et tourne autour de son axe y */
+  //Mercure//
   memcpy(nmv, mvMat, sizeof nmv); 
-  //rotate(nmv, a, 5.0f, 5.0f, 5.0f);
-  rotate_sun(nmv,-angle,10.0f);
-  transform_n_raster(_mercure, nmv, projMat);  /* le quadrilatère est mis à gauche et tourne autour de son axe x */
-  /* la sphère est laissée au centre et tourne autour de son axe y */
+  rotate_sun(nmv,angle_inv,13.0f);
+  rotate(nmv, a, 5.0f, 5.0f, 5.0f);
+  transform_n_raster(_mercure, nmv, projMat); 
+
+  //Venus//
   memcpy(nmv, mvMat, sizeof nmv); 
   scale(nmv,1.2f,1.5f,1.2f);
-  //rotate(nmv, a, 5.0f, 5.0f, 5.0f);
   rotate_sun(nmv,angle + 2,15.0f);
-  transform_n_raster(_venus, nmv, projMat);  /* le quadrilatère est mis à gauche et tourne autour de son axe x */
-  /* la sphère est laissée au centre et tourne autour de son axe y */
+  rotate(nmv, a, 5.0f, 5.0f, 5.0f);
+  transform_n_raster(_venus, nmv, projMat); 
+
+  //Terre//
   memcpy(nmv, mvMat, sizeof nmv);
   scale(nmv,1.5f,1.8f,1.5f);
-  //rotate(nmv, a, 5.0f, 5.0f, 5.0f);
-  rotate_sun(nmv,angle_inv - 1.5,21.0f);
+  rotate_sun(nmv,angle_inv - 1.5,18.0f);
+  rotate(nmv, a, 5.0f, 5.0f, 5.0f);
   transform_n_raster(_terre, nmv, projMat);
-  /* le quadrilatère est mis à gauche et tourne autour de son axe x */
-  /* la sphère est laissée au centre et tourne autour de son axe y */
 
-  
-    /* le quadrilatère est mis à gauche et tourne autour de son axe x */
-  /* la sphère est laissée au centre et tourne autour de son axe y */
+  //Mars//
   memcpy(nmv, mvMat, sizeof nmv);
   scale(nmv,1.3f,1.6f,1.3f);
-  //rotate(nmv, a, 5.0f, 5.0f, 5.0f);
-  rotate_sun(nmv,angle + 1,26.0f);
+  rotate_sun(nmv,angle + 1,28.0f);
+  rotate(nmv, a, 5.0f, 5.0f, 5.0f);
   transform_n_raster(_mars, nmv, projMat);
 
+
+  //Jupiter//
   memcpy(nmv, mvMat, sizeof nmv);
-  scale(nmv,3.0f,3.8f,3.0f);
-  //rotate(nmv, a, 5.0f, 5.0f, 5.0f);
-  rotate_sun(nmv,angle_inv,32.0f);
+  scale(nmv,6.0f,6.8f,6.0f);
+  rotate_sun(nmv,angle_inv,8.0f);
+  rotate(nmv, a, 5.0f, 5.0f, 5.0f);
   transform_n_raster(_jupiter, nmv, projMat);
 
+
+  //Saturne//
   memcpy(nmv, mvMat, sizeof nmv);
-  scale(nmv,2.0f,2.8f,2.0f);
-  //rotate(nmv, a, 5.0f, 5.0f, 5.0f);
-  rotate_sun(nmv,angle + 0.3,37.0f);
+  scale(nmv,5.0f,5.8f,5.0f);
+  rotate_sun(nmv,angle + 7,15.0f);
+  rotate(nmv, a, 5.0f, 5.0f, 5.0f);
   transform_n_raster(_saturne, nmv, projMat);
 
+
+  //Uranus//
   memcpy(nmv, mvMat, sizeof nmv);
   scale(nmv,1.2f,1.5f,1.2f);
-  //rotate(nmv, a, 5.0f, 5.0f, 5.0f);
-  rotate_sun(nmv,angle_inv + 0.3,43.0f);
+  rotate_sun(nmv,angle_inv - 1,50.0f);
+  rotate(nmv, a, 5.0f, 5.0f, 5.0f);
   transform_n_raster(_uranus, nmv, projMat);
 
+  //Neptune//
   memcpy(nmv, mvMat, sizeof nmv);
   scale(nmv,1.5f,1.8f,1.5f);
-  //rotate(nmv, a, 5.0f, 5.0f, 5.0f);
-  rotate_sun(nmv,angle_inv + 0.3,46.0f);
+  rotate_sun(nmv,angle_inv + 0.3,70.0f);
+  rotate(nmv, a, 5.0f, 5.0f, 5.0f);
   transform_n_raster(_neptune, nmv, projMat);
 
   /* déclarer qu'on a changé (en bas niveau) des pixels du screen  */
   gl4dpScreenHasChanged();
   /* fonction permettant de raffraîchir l'ensemble de la fenêtre*/
   gl4dpUpdateScreen(NULL);
-  a += 0.1f;
-  angle += 0.01;
-  angle_inv -= 0.01;
+  if (_temps == 0){
+    a += 0.1f;
+    angle += 0.01;
+    angle_inv -= 0.01;
+  } else{
+    a += 1.0;
+    angle += 0.10;
+    angle_inv -= 0.10;
+  }
+
 
 }
 void rotate_sun(float * m, float angle, float rayon) {
@@ -255,6 +338,23 @@ void rotate_sun(float * m, float angle, float rayon) {
     y = sin(angle) * rayon;
     
     translate(m,y,0.0f,x);
+}
+
+/*!\brief intercepte l'événement clavier pour modifier les options. */
+void key(int keycode) {
+  switch(keycode) {
+  case GL4DK_UP: /* 'v' changer de vue */
+    _temps = !_temps;
+  break;
+  case GL4DK_v: /* 'v' changer de vue */
+    vue_soleil = !vue_soleil;
+    break;
+    case GL4DK_b: /* 'v' changer de vue */
+    vue_mercure = !vue_mercure;
+    break;  
+  default: break;
+  }
+  
 }
 
 /*!\brief à appeler à la sortie du programme. */
