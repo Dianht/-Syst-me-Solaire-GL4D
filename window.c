@@ -38,6 +38,7 @@ static surface_t * _mars = NULL;
 static surface_t * _lune = NULL;
 static surface_t * _jupiter = NULL;
 static surface_t * _saturne = NULL;
+static surface_t * _dsaturne = NULL;
 static surface_t * _uranus = NULL;
 static surface_t * _neptune = NULL;
 /*!\brief une surface représentant un cube */
@@ -110,7 +111,7 @@ int main(int argc, char ** argv) {
 void init(void) {
   int i;
   GLuint id[10];
-  vec4 r = {1, 0, 0, 1}, g = {0, 1, 0, 1}, b = {0, 0, 1, 1},w = {1, 1, 1, 1};
+  vec4 w = {1, 1, 1, 1};
   /* on créé nos trois type de surfaces */
  for(i = 0;i < 10;i++){
    id[i] = getTexFromBMP(planete_tex[i]);
@@ -162,6 +163,12 @@ void init(void) {
   setTexId(_saturne, id[7]);
   enableSurfaceOption(_saturne, SO_USE_TEXTURE);
   enableSurfaceOption(_saturne, SO_USE_LIGHTING);
+  
+  _dsaturne = mkDisk(30, 30); 
+  _dsaturne->dcolor = w; 
+  setTexId(_dsaturne, id[7]);
+  enableSurfaceOption(_dsaturne, SO_USE_TEXTURE);
+
 
   _uranus = mkSphere(30, 30); 
   _uranus->dcolor = w; 
@@ -205,23 +212,21 @@ void draw(void) {
     vue_y = 50;
     lookAt(mvMat, vue_x, vue_y, 0, 0, 0, 0, 0, 1, 0);
   }
-   else{
+   if (vue_soleil == 1){
     lookAt(mvMat, vue_x, vue_y, 0, 0, 0, 0, 0, 1, 0);
     if (vue_y != 0){
       vue_x -= 1;
       vue_y -= 1;
     }
   }
-  /*
-  if (vue_mercure  == 0){
-    vue_x = 80;
-    vue_y = 50;
-    lookAt(mvMat, vue_x, vue_y, 0, 0, 0, 0, 0, 1, 0);
-  }
-  else{
-    
-    lookAt(mvMat, vue_x, 20, 10, 0, 0, 0, 0, 1, 0);
+  if (vue_mercure  == 1){
+     lookAt(mvMat, vue_x, vue_y, 0, 0, 0, 0, 0, 1, 0);
+    if (vue_y != 0){
+      vue_x -= 1;
+      vue_y -= 1;
     }
+  }
+  /*
   if(vue_venus  == 0){
 
   }else{
@@ -314,7 +319,13 @@ void draw(void) {
   scale(nmv,5.0f,5.8f,5.0f);
   rotate(nmv, a, 5.0f, 5.0f, 5.0f);
   transform_n_raster(_saturne, nmv, projMat);
-
+  
+  //Disque de Saturne
+  memcpy(nmv, mvMat, sizeof nmv);
+  rotate_sun(nmv,angle + 7,58.0f);
+  scale(nmv,8.0f,0.0f,8.0f);
+  rotate(nmv, a, 0.0f, 5.0f, 0.0f);
+  transform_n_raster(_dsaturne, nmv, projMat);
 
   //Uranus//
   memcpy(nmv, mvMat, sizeof nmv);
