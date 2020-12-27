@@ -61,6 +61,7 @@ static float _ycam = 3.0f;
 static float a = 0.0f;
 static float angle = 0.0f;
 static float angle_inv = 0.0f;
+static float angle_lune = 0.0f;
 static int vue_soleil = 0;
 static int vue_mercure = 0;
 static int vue_venus = 0;
@@ -182,7 +183,11 @@ void draw(void) {
   float mvMat[16], projMat[16], nmv[16];
   static double t0 = 0, t, dt;
   static GLfloat av= 0;
-
+  static float x,x_i,y_i, y;
+    x = cos(angle_inv) * 25;
+    y = sin(angle_inv) * 25;
+    x_i = x  + cos(angle_lune) * 3 ;
+    y_i = y  + sin(angle_lune) * 3 ;
   /* effacer l'écran et le buffer de profondeur */
   gl4dpClearScreen();
   clearDepth();
@@ -254,65 +259,74 @@ void draw(void) {
   */
   //Soleil//
   memcpy(nmv, mvMat, sizeof nmv); 
-  scale(nmv,9.0f,11.0f,9.0f);
+  scale(nmv,10.0f,12.0f,10.0f);
   rotate(nmv, a, 5.0f, 5.0f, 5.0f);
   transform_n_raster(_soleil, nmv, projMat);
 
   //Mercure//
   memcpy(nmv, mvMat, sizeof nmv); 
-  rotate_sun(nmv,angle_inv,13.0f);
+  rotate_sun(nmv,angle_inv - 20,13.0f);
+  scale(nmv,0.8f,1.0f,0.8f);
   rotate(nmv, a, 5.0f, 5.0f, 5.0f);
   transform_n_raster(_mercure, nmv, projMat); 
 
   //Venus//
   memcpy(nmv, mvMat, sizeof nmv); 
+  rotate_sun(nmv,angle + 2,20.0f);
   scale(nmv,1.2f,1.5f,1.2f);
-  rotate_sun(nmv,angle + 2,15.0f);
   rotate(nmv, a, 5.0f, 5.0f, 5.0f);
   transform_n_raster(_venus, nmv, projMat); 
 
   //Terre//
   memcpy(nmv, mvMat, sizeof nmv);
+  translate(nmv,y,0.0f,x);
   scale(nmv,1.5f,1.8f,1.5f);
-  rotate_sun(nmv,angle_inv - 1.5,18.0f);
   rotate(nmv, a, 5.0f, 5.0f, 5.0f);
   transform_n_raster(_terre, nmv, projMat);
 
+  //Lune//
+  memcpy(nmv, mvMat, sizeof nmv);
+  translate(nmv,y_i,0.0f,x_i);
+  scale(nmv,0.4f,0.6f,0.4f);
+  rotate(nmv, a, 5.0f, 5.0f, 5.0f);
+  transform_n_raster(_lune, nmv, projMat);
+
+
   //Mars//
   memcpy(nmv, mvMat, sizeof nmv);
-  scale(nmv,1.3f,1.6f,1.3f);
-  rotate_sun(nmv,angle + 1,28.0f);
+  rotate_sun(nmv,angle + 1,34.0f);
   rotate(nmv, a, 5.0f, 5.0f, 5.0f);
+  scale(nmv,1.3f,1.6f,1.3f);
   transform_n_raster(_mars, nmv, projMat);
 
 
   //Jupiter//
   memcpy(nmv, mvMat, sizeof nmv);
+  rotate_sun(nmv,angle_inv - 10,43.0f);
   scale(nmv,6.0f,6.8f,6.0f);
-  rotate_sun(nmv,angle_inv,8.0f);
   rotate(nmv, a, 5.0f, 5.0f, 5.0f);
   transform_n_raster(_jupiter, nmv, projMat);
 
 
   //Saturne//
   memcpy(nmv, mvMat, sizeof nmv);
+  rotate_sun(nmv,angle + 7,58.0f);
   scale(nmv,5.0f,5.8f,5.0f);
-  rotate_sun(nmv,angle + 7,15.0f);
   rotate(nmv, a, 5.0f, 5.0f, 5.0f);
   transform_n_raster(_saturne, nmv, projMat);
 
 
   //Uranus//
   memcpy(nmv, mvMat, sizeof nmv);
+  rotate_sun(nmv,angle_inv - 1,65.0f);
   scale(nmv,1.2f,1.5f,1.2f);
-  rotate_sun(nmv,angle_inv - 1,50.0f);
   rotate(nmv, a, 5.0f, 5.0f, 5.0f);
   transform_n_raster(_uranus, nmv, projMat);
 
   //Neptune//
   memcpy(nmv, mvMat, sizeof nmv);
-  scale(nmv,1.5f,1.8f,1.5f);
   rotate_sun(nmv,angle_inv + 0.3,70.0f);
+  scale(nmv,1.5f,1.8f,1.5f);
   rotate(nmv, a, 5.0f, 5.0f, 5.0f);
   transform_n_raster(_neptune, nmv, projMat);
 
@@ -324,10 +338,12 @@ void draw(void) {
     a += 0.1f;
     angle += 0.01;
     angle_inv -= 0.01;
+    angle_lune-= 0.02;
   } else{
     a += 1.0;
     angle += 0.10;
     angle_inv -= 0.10;
+    angle_lune-= 0.20;
   }
 
 
@@ -339,7 +355,13 @@ void rotate_sun(float * m, float angle, float rayon) {
     
     translate(m,y,0.0f,x);
 }
-
+void rotate_moon(float * m, float angle, float rayon) {
+    float x, y;
+    x = cos(angle) * rayon;
+    y = sin(angle) * rayon;
+    
+    translate(m,y,0.0f,x);
+}
 /*!\brief intercepte l'événement clavier pour modifier les options. */
 void key(int keycode) {
   switch(keycode) {
