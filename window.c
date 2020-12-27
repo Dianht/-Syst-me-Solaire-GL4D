@@ -355,13 +355,7 @@ void rotate_sun(float * m, float angle, float rayon) {
     
     translate(m,y,0.0f,x);
 }
-void rotate_moon(float * m, float angle, float rayon) {
-    float x, y;
-    x = cos(angle) * rayon;
-    y = sin(angle) * rayon;
-    
-    translate(m,y,0.0f,x);
-}
+
 /*!\brief intercepte l'événement clavier pour modifier les options. */
 void key(int keycode) {
   switch(keycode) {
