@@ -78,9 +78,9 @@ static int vue_uranus = 0;
 static int vue_neptune = 0;
 
 static int _temps = 0;
-static int vue_x = 80;
-static int vue_y = 50;
-static int vue_z = 0;
+static int vue_x = 3.0f;
+static int vue_y = 160.0f;
+static int vue_z = 0.0f;
 
 /*!\brief paramètre l'application et lance la boucle infinie. */
 int main(int argc, char ** argv) {
@@ -194,8 +194,8 @@ void init(void) {
 void draw(void) {
   float mvMat[16], projMat[16], nmv[16];
   static float x,x_i,y_i, y;
-    x = cos(angle_inv) * 25;
-    y = sin(angle_inv) * 25;
+    x = 2 + cos(angle_inv) * 25;
+    y = 2 + sin(angle_inv) * 25;
     x_i = x  + cos(angle_lune) * 3 ;
     y_i = y  + sin(angle_lune) * 3 ;
   /* effacer l'écran et le buffer de profondeur */
@@ -385,10 +385,10 @@ static void animation_vue(float x, float y , float z){
 
 void camera(float * mvMat){
   if((vue_soleil == 0) && (vue_mercure == 0) && (vue_venus == 0) && (vue_terre == 0) && (vue_mars == 0) && (vue_jupiter == 0) && (vue_saturne == 0) && (vue_uranus == 0)&& (vue_neptune == 0)){
-    vue_x = 80;
-    vue_y = 50;
-    vue_z = 0;
-    lookAt(mvMat, vue_x, vue_y, vue_z, 0, 0, 0, 0, 1, 0);
+    vue_x = 3.0f;
+    vue_y = 160.0f;
+    vue_z = 0.0f;
+    lookAt(mvMat, vue_x, vue_y,vue_z, 0, 0, 0, 0, 1,0);
   }
   else if (vue_soleil == 1){
     init_vue(0);
@@ -408,7 +408,7 @@ void camera(float * mvMat){
     lookAt(mvMat, vue_x, vue_y, vue_z, 0, 0, 0, 0, 1, 0);
     animation_vue(22.0f,0.0f,-10.0f);
   }
- else if (vue_terre == 1){
+  else if (vue_terre == 1){
     init_vue(3);
     stop(0,10,0);
     lookAt(mvMat, vue_x, vue_y, vue_z, 0, 0, 0, 0, 1,0);
@@ -445,7 +445,6 @@ void camera(float * mvMat){
     animation_vue(-60.0f,0.0f,-50.0f);
   }
 }
-
 void rotate_sun(float * m, float angle, float rayon) {
     float x, y;
     x = cos(angle) * rayon;
