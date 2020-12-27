@@ -27,7 +27,7 @@ static void key(int keycode);
 static void stop(float angle_1,float angle_2, float angle_3);
 static void animation_vue(float x, float y , float z);
 static void camera(float * mvMat);
-static void rotate_sun(float * m, float angle,float rayon);
+static void rotate_sun(float * m, float angle,float rayon, int x, int y);
 static void init_vue(int planete);
 static void sortie(void);
 /*!\brief un identifiant pour l'écran (de dessin) */
@@ -77,7 +77,8 @@ static int vue_saturne = 0;
 static int vue_uranus = 0;
 static int vue_neptune = 0;
 
-static int _temps = 0;
+static int vitesse_r = 0;
+static int vitesse_l = 0;
 static int vue_x = 3.0f;
 static int vue_y = 160.0f;
 static int vue_z = 0.0f;
@@ -189,125 +190,6 @@ void init(void) {
 
   atexit(sortie);
 }
-
-/*!\brief la fonction appelée à chaque display. */
-void draw(void) {
-  float mvMat[16], projMat[16], nmv[16];
-  static float x,x_i,y_i, y;
-    x = 2 + cos(angle_inv) * 25;
-    y = 2 + sin(angle_inv) * 25;
-    x_i = x  + cos(angle_lune) * 3 ;
-    y_i = y  + sin(angle_lune) * 3 ;
-  /* effacer l'écran et le buffer de profondeur */
-  gl4dpClearScreen();
-  clearDepth();
-  /* des macros facilitant le travail avec des matrices et des
-   * vecteurs se trouvent dans la bibliothèque GL4Dummies, dans le
-   * fichier gl4dm.h */
-  /* charger un frustum dans projMat */
-  MFRUSTUM(projMat, -0.05f, 0.05f, -0.05f, 0.05f, 0.1f, 1000.0f);
-  /* charger la matrice identité dans model-view */
-  MIDENTITY(mvMat);
-  /* on place la caméra en arrière-haut, elle regarde le centre de la scène */
-
-  camera(mvMat);
-  //Soleil//
-  memcpy(nmv, mvMat, sizeof nmv); 
-  scale(nmv,10.0f,12.0f,10.0f);
-  rotate(nmv, a, 3.0f, 4.0f, 5.0f);
-  transform_n_raster(_soleil, nmv, projMat);
-
-  //Mercure//
-  memcpy(nmv, mvMat, sizeof nmv); 
-  rotate_sun(nmv,angle_inv - 20,13.0f);
-  scale(nmv,0.8f,1.0f,0.8f);
-  rotate(nmv, a, 5.0f, 5.0f, 5.0f);
-  transform_n_raster(_mercure, nmv, projMat); 
-
-  //Venus//
-  memcpy(nmv, mvMat, sizeof nmv); 
-  rotate_sun(nmv,angle + 2,20.0f);
-  scale(nmv,1.2f,1.5f,1.2f);
-  rotate(nmv, a, 5.0f, 1.0f, 3.0f);
-  transform_n_raster(_venus, nmv, projMat); 
-
-  //Terre//
-  memcpy(nmv, mvMat, sizeof nmv);
-  translate(nmv,y,0.0f,x);
-  scale(nmv,1.5f,1.8f,1.5f);
-  rotate(nmv, a, 5.0f, 6.0f, 2.0f);
-  transform_n_raster(_terre, nmv, projMat);
-
-  //Lune//
-  memcpy(nmv, mvMat, sizeof nmv);
-  translate(nmv,y_i,0.0f,x_i);
-  scale(nmv,0.4f,0.5f,0.4f);
-  rotate(nmv, a, 1.0f, 5.0f, 3.0f);
-  transform_n_raster(_lune, nmv, projMat);
-
-
-  //Mars//
-  memcpy(nmv, mvMat, sizeof nmv);
-  rotate_sun(nmv,angle + 1,34.0f);
-  scale(nmv,1.3f,1.5f,1.3f);
-  rotate(nmv, a, 2.0f, 2.0f, 5.0f);
-  transform_n_raster(_mars, nmv, projMat);
-
-
-  //Jupiter//
-  memcpy(nmv, mvMat, sizeof nmv);
-  rotate_sun(nmv,angle_inv - 10,43.0f);
-  scale(nmv,6.0f,6.8f,6.0f);
-  rotate(nmv, a, 5.0f, 4.0f, 4.0f);
-  transform_n_raster(_jupiter, nmv, projMat);
-
-
-  //Saturne//
-  memcpy(nmv, mvMat, sizeof nmv);
-  rotate_sun(nmv,angle + 7,58.0f);
-  scale(nmv,5.0f,5.9f,5.0f);
-  rotate(nmv, a, 5.0f, 0.0f, 5.0f);
-  transform_n_raster(_saturne, nmv, projMat);
-  
-  //Disque de Saturne
-  memcpy(nmv, mvMat, sizeof nmv);
-  rotate_sun(nmv,angle + 7,58.0f);
-  scale(nmv,8.0f,0.0f,8.0f);
-  rotate(nmv, a, 0.0f, 5.0f, 0.0f);
-  transform_n_raster(_dsaturne, nmv, projMat);
-
-  //Uranus//
-  memcpy(nmv, mvMat, sizeof nmv);
-  rotate_sun(nmv,angle_inv - 1,65.0f);
-  scale(nmv,1.2f,1.5f,1.2f);
-  rotate(nmv, a, 4.0f, 5.0f, 7.0f);
-  transform_n_raster(_uranus, nmv, projMat);
-
-  //Neptune//
-  memcpy(nmv, mvMat, sizeof nmv);
-  rotate_sun(nmv,angle_inv + 0.3,70.0f);
-  scale(nmv,1.5f,1.8f,1.5f);
-  rotate(nmv, a, 5.0f, 5.0f, 5.0f);
-  transform_n_raster(_neptune, nmv, projMat);
-
-  /* déclarer qu'on a changé (en bas niveau) des pixels du screen  */
-  gl4dpScreenHasChanged();
-  /* fonction permettant de raffraîchir l'ensemble de la fenêtre*/
-  gl4dpUpdateScreen(NULL);
-  if (_temps == 0){
-    a += 0.1f;
-    angle += 0.01;
-    angle_inv -= 0.01;
-    angle_lune-= 0.02;
-  } else{
-    a += 1.0;
-    angle += 0.10;
-    angle_inv -= 0.10;
-    angle_lune-= 0.20;
-  }
-
-
-}
 void init_vue(int planete){
   vue_soleil = 0;
   vue_mercure = 0;
@@ -382,11 +264,10 @@ static void animation_vue(float x, float y , float z){
   }
 
 }
-
 void camera(float * mvMat){
   if((vue_soleil == 0) && (vue_mercure == 0) && (vue_venus == 0) && (vue_terre == 0) && (vue_mars == 0) && (vue_jupiter == 0) && (vue_saturne == 0) && (vue_uranus == 0)&& (vue_neptune == 0)){
     vue_x = 3.0f;
-    vue_y = 160.0f;
+    vue_y = 190.0f;
     vue_z = 0.0f;
     lookAt(mvMat, vue_x, vue_y,vue_z, 0, 0, 0, 0, 1,0);
   }
@@ -400,25 +281,25 @@ void camera(float * mvMat){
     init_vue(1);
     stop(0,10,0);
     lookAt(mvMat, vue_x, vue_y, vue_z, 0, 0, 0, 0, 1, 0);
-    animation_vue(9.0f,0.0f,-14.0f);
+    animation_vue(13.0f,0.0f,-15.0f);
   }
   else if (vue_venus  == 1){
     init_vue(2);
     stop(0,10,0);
     lookAt(mvMat, vue_x, vue_y, vue_z, 0, 0, 0, 0, 1, 0);
-    animation_vue(22.0f,0.0f,-10.0f);
+    animation_vue(20.0f,0.0f,-12.0f);
   }
   else if (vue_terre == 1){
     init_vue(3);
     stop(0,10,0);
     lookAt(mvMat, vue_x, vue_y, vue_z, 0, 0, 0, 0, 1,0);
-    animation_vue(-17.0f,0.0f,-27.0f);
+    animation_vue(-20.0f,0.0f,-31.0f);
   }
   else if (vue_mars == 1){
     init_vue(4);
     stop(0,10,0);
     lookAt(mvMat, vue_x, vue_y, vue_z, 0, 0, 0, 0, 1,0);
-    animation_vue(32.0f,0.0f,21.0f);
+    animation_vue(29.0f,0.0f,26.0f);
   }
   else if (vue_jupiter == 1){
     init_vue(5);
@@ -430,34 +311,161 @@ void camera(float * mvMat){
     init_vue(6);
     stop(0,10,0);
     lookAt(mvMat, vue_x, vue_y, vue_z, 0, 0, 0, 0, 1,0);
-    animation_vue(50.0f,1.0f,58.0f);
+    animation_vue(65.0f,1.0f,75.0f);
   }
   else if (vue_uranus == 1){
     init_vue(7);
     stop(0,10,0);
     lookAt(mvMat, vue_x, vue_y, vue_z, 0, 0, 0, 0, 1,0);
-    animation_vue(30.0f,0.0f,-66.0f);
+    animation_vue(34.0f,0.0f,-75.0f);
   }
   else if (vue_neptune == 1){
     init_vue(8);
     stop(0,10,0);
     lookAt(mvMat, vue_x, vue_y, vue_z, 0, 0, 0, 0, 1,0);
-    animation_vue(-60.0f,0.0f,-50.0f);
+    animation_vue(-70.0f,0.0f,-59.0f);
   }
 }
-void rotate_sun(float * m, float angle, float rayon) {
+void rotate_sun(float * m, float angle, float rayon, int x_0, int y_0) {
     float x, y;
-    x = cos(angle) * rayon;
-    y = sin(angle) * rayon;
+    x = x_0 + cos(angle) * rayon;
+    y = y_0 + sin(angle) * rayon;
     
     translate(m,y,0.0f,x);
+}
+
+/*!\brief la fonction appelée à chaque display. */
+void draw(void) {
+  float mvMat[16], projMat[16], nmv[16];
+  static float x,x_i,y_i, y;
+    x = cos(angle_inv) * 29;
+    y = sin(angle_inv) * 29;
+    x_i = x  + cos(angle_lune) * 3 ;
+    y_i = y  + sin(angle_lune) * 3 ;
+  /* effacer l'écran et le buffer de profondeur */
+  gl4dpClearScreen();
+  clearDepth();
+  /* des macros facilitant le travail avec des matrices et des
+   * vecteurs se trouvent dans la bibliothèque GL4Dummies, dans le
+   * fichier gl4dm.h */
+  /* charger un frustum dans projMat */
+  MFRUSTUM(projMat, -0.05f, 0.05f, -0.05f, 0.05f, 0.1f, 1000.0f);
+  /* charger la matrice identité dans model-view */
+  MIDENTITY(mvMat);
+  /* on place la caméra en arrière-haut, elle regarde le centre de la scène */
+
+  camera(mvMat);
+  //Soleil//
+  memcpy(nmv, mvMat, sizeof nmv); 
+  scale(nmv,10.0f,12.0f,10.0f);
+  rotate(nmv, a, 3.0f, 4.0f, 5.0f);
+  transform_n_raster(_soleil, nmv, projMat);
+
+  //Mercure//
+  memcpy(nmv, mvMat, sizeof nmv); 
+  rotate_sun(nmv,angle_inv - 20,15.0f,0,3);
+  scale(nmv,0.8f,1.0f,0.8f);
+  rotate(nmv, a, 5.0f, 5.0f, 5.0f);
+  transform_n_raster(_mercure, nmv, projMat); 
+
+  //Venus//
+  memcpy(nmv, mvMat, sizeof nmv); 
+  rotate_sun(nmv,angle + 2,20.0f,-2,-1);
+  scale(nmv,1.2f,1.5f,1.2f);
+  rotate(nmv, a, 5.0f, 1.0f, 3.0f);
+  transform_n_raster(_venus, nmv, projMat); 
+
+  //Terre//
+  memcpy(nmv, mvMat, sizeof nmv);
+  translate(nmv,y,0.0f,x);
+  scale(nmv,1.5f,1.8f,1.5f);
+  rotate(nmv, a, 5.0f, 6.0f, 2.0f);
+  transform_n_raster(_terre, nmv, projMat);
+
+  //Lune//
+  memcpy(nmv, mvMat, sizeof nmv);
+  translate(nmv,y_i,0.0f,x_i);
+  scale(nmv,0.4f,0.5f,0.4f);
+  rotate(nmv, a, 1.0f, 5.0f, 3.0f);
+  transform_n_raster(_lune, nmv, projMat);
+
+
+  //Mars//
+  memcpy(nmv, mvMat, sizeof nmv);
+  rotate_sun(nmv,angle + 1,35.0f,4,-4);
+  scale(nmv,1.3f,1.5f,1.3f);
+  rotate(nmv, a, 2.0f, 2.0f, 5.0f);
+  transform_n_raster(_mars, nmv, projMat);
+
+
+  //Jupiter//
+  memcpy(nmv, mvMat, sizeof nmv);
+  rotate_sun(nmv,angle_inv - 10,49.0f,0,0);
+  scale(nmv,6.0f,6.8f,6.0f);
+  rotate(nmv, a, 5.0f, 4.0f, 4.0f);
+  transform_n_raster(_jupiter, nmv, projMat);
+
+
+  //Saturne//
+  memcpy(nmv, mvMat, sizeof nmv);
+  rotate_sun(nmv,angle + 7,66.0f,0,0);
+  scale(nmv,5.0f,5.9f,5.0f);
+  rotate(nmv, a, 5.0f, 0.0f, 5.0f);
+  transform_n_raster(_saturne, nmv, projMat);
+  
+  //Disque de Saturne
+  memcpy(nmv, mvMat, sizeof nmv);
+  rotate_sun(nmv,angle + 7,66.0f,0,0);
+  scale(nmv,8.0f,0.0f,8.0f);
+  rotate(nmv, a, 0.0f, 5.0f, 0.0f);
+  transform_n_raster(_dsaturne, nmv, projMat);
+
+  //Uranus//
+  memcpy(nmv, mvMat, sizeof nmv);
+  rotate_sun(nmv,angle_inv - 1,78.0f,0,0);
+  scale(nmv,1.2f,1.5f,1.2f);
+  rotate(nmv, a, 4.0f, 5.0f, 7.0f);
+  transform_n_raster(_uranus, nmv, projMat);
+
+  //Neptune//
+  memcpy(nmv, mvMat, sizeof nmv);
+  rotate_sun(nmv,angle_inv + 0.3,86.0f,0,0);
+  scale(nmv,1.5f,1.8f,1.5f);
+  rotate(nmv, a, 5.0f, 5.0f, 5.0f);
+  transform_n_raster(_neptune, nmv, projMat);
+
+  /* déclarer qu'on a changé (en bas niveau) des pixels du screen  */
+  gl4dpScreenHasChanged();
+  /* fonction permettant de raffraîchir l'ensemble de la fenêtre*/
+  gl4dpUpdateScreen(NULL);
+  if ((vitesse_r == 0) && (vitesse_l == 0)){
+    a += 0.1f;
+    angle += 0.01;
+    angle_inv -= 0.01;
+    angle_lune-= 0.02;
+  } else if (vitesse_r == 1){
+    a += 1.0;
+    angle += 0.10;
+    angle_inv -= 0.10;
+    angle_lune-= 0.20;
+  } else{
+    a += 0.001;
+    angle += 0.001;
+    angle_inv -= 0.001;
+    angle_lune-= 0.002;
+  }
+
+
 }
 
 /*!\brief intercepte l'événement clavier pour modifier les options. */
 void key(int keycode) {
   switch(keycode) {
   case GL4DK_UP:
-   _temps = !_temps;
+   vitesse_r = !vitesse_r;
+  break;
+  case GL4DK_DOWN:
+   vitesse_l = !vitesse_l;
   break;
   case GL4DK_a: 
     vue_soleil = !vue_soleil;
