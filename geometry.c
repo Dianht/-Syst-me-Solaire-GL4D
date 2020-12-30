@@ -189,7 +189,7 @@ surface_t * mkDisk(int longitudes, int latitudes) {
     }
   }
   for(z = 0, k = 0; z < latitudes; ++z) {
-      nz = z + 1;
+      nz = 20 + 1;
       zw = z * (longitudes + 1);
       nzw = nz * (longitudes + 1);
       for(x = 0; x < longitudes; ++x) {

@@ -29,9 +29,7 @@ static void init(void);
 static void draw(void);
 static void key(int keycode);
 static void animation_vue(float x, float y, float z);
-static void camera(float * mvMat);
 static void rotate_sun(float * m, float angle, float rayon, int x, int y);
-static void init_vue(int planete);
 static void sortie(void);
 /*!\brief un identifiant pour l'écran (de dessin) */
 static GLuint _screenId = 0;
@@ -69,24 +67,18 @@ static float a = 0.0f;
 static float angle = 0.0f;
 static float angle_lune = 0.0f;
 
-static int vue_soleil = 0;
-static int vue_mercure = 0;
-static int vue_venus = 0;
-static int vue_terre = 0;
-static int vue_mars = 0;
-static int vue_jupiter = 0;
-static int vue_saturne = 0;
-static int vue_uranus = 0;
-static int vue_neptune = 0;
+static int stop = 0;
 
 static float v_a = 0.1;
 static float v_angle = 0.01;
 static float v_lune = 0.02;
 
-
 static int vue_x = 3.0f;
-static int vue_y = 160.0f;
+static int vue_y = 190.0f;
 static int vue_z = 0.0f;
+static int v_x = 3.0f;
+static int v_y = 190.0f;
+static int v_z = 0.0f;
 
 /*!\brief paramètre l'application et lance la boucle infinie. */
 int main(int argc, char ** argv) {
@@ -166,53 +158,6 @@ void init(void) {
 
   atexit(sortie);
 }
-void init_vue(int planete) {
-  //A chaque fois qu'une caméra se activé, la camera active sera desactivé
-  vue_soleil = 0;
-  vue_mercure = 0;
-  vue_venus = 0;
-  vue_terre = 0;
-  vue_mars = 0;
-  vue_jupiter = 0;
-  vue_saturne = 0;
-  vue_uranus = 0;
-  vue_neptune = 0;
-  //On arrete les mouvements des planetes
-  angle = 0.0;
-  //en fonction de la planete, on activera une caméra
-  switch (planete) {
-  case 0:
-    vue_soleil = 1;
-    break;
-  case 1:
-    vue_mercure = 1;
-    break;
-  case 2:
-    vue_venus = 1;
-    break;
-  case 3:
-    vue_terre = 1;
-    break;
-  case 4:
-    vue_mars = 1;
-    break;
-  case 5:
-    vue_jupiter = 1;
-    break;
-  case 6:
-    vue_saturne = 1;
-    break;
-  case 7:
-    vue_uranus = 1;
-    break;
-  case 8:
-    vue_neptune = 1;
-    break;
-  default:
-    break;
-  }
-
-}
 
 static void animation_vue(float x, float y, float z) {
   //On a là une animation de caméra
@@ -242,63 +187,7 @@ static void animation_vue(float x, float y, float z) {
   }
 
 }
-void camera_mercure(float * mvMat){
-  lookAt(mvMat, vue_x, vue_y, vue_z, 0, 0, 0, 0, 1, 0);
-  animation_vue(21.0f, 0.0f, 8.0f);
-}
-void camera(float * mvMat) {
-  //HORRIBLE
-  if ((vue_soleil == 0)
-   && (vue_mercure == 0) 
-   && (vue_venus == 0)
-    && (vue_terre == 0)
-     && (vue_mars == 0)
-      && (vue_jupiter == 0)
-       && (vue_saturne == 0) 
-       && (vue_uranus == 0) 
-       && (vue_neptune == 0)) {
-    vue_x = 3.0f;
-    vue_y = 190.0f;
-    vue_z = 0.0f;
-    lookAt(mvMat, vue_x, vue_y, vue_z, 0, 0, 0, 0, 1, 0);
-  } else if (vue_soleil == 1) {
-    init_vue(0);
-    lookAt(mvMat, vue_x, vue_y, vue_z, 0, 0, 0, 0, 1, 0);
-    animation_vue(30.0f, 0.0f, 0.0f);
-  } else if (vue_mercure == 1) {
-    init_vue(1);
-    lookAt(mvMat, vue_x, vue_y, vue_z, 0, 0, 0, 0, 1, 0);
-    animation_vue(21.0f, 0.0f, 8.0f);
-  } else if (vue_venus == 1) {
-    init_vue(2);
-    lookAt(mvMat, vue_x, vue_y, vue_z, 0, 0, 0, 0, 1, 0);
-    animation_vue(20.0f, 0.0f, -12.0f);
-  } else if (vue_terre == 1) {
-    init_vue(3);
-    lookAt(mvMat, vue_x, vue_y, vue_z, 0, 0, 0, 0, 1, 0);
-    animation_vue(0.0f, 0.0f, 45.0f);
-  } else if (vue_mars == 1) {
-    init_vue(4);
-    lookAt(mvMat, vue_x, vue_y, vue_z, 0, 0, 0, 0, 1, 0);
-    animation_vue(29.0f, 0.0f, 26.0f);
-  } else if (vue_jupiter == 1) {
-    init_vue(5);
-    lookAt(mvMat, vue_x, vue_y, vue_z, 0, 1, 0, 0, 1, 0);
-    animation_vue(0.0f, 0.0f, 70.0f);
-  } else if (vue_saturne == 1) {
-    init_vue(6);
-    lookAt(mvMat, vue_x, vue_y, vue_z, 0, 0, 0, 0, 1, 0);
-    animation_vue(65.0f, 1.0f, 75.0f);
-  } else if (vue_uranus == 1) {
-    init_vue(7);
-    lookAt(mvMat, vue_x, vue_y, vue_z, 0, 0, 0, 0, 1, 0);
-    animation_vue(50.0f, 0.0f, -75.0f);
-  } else if (vue_neptune == 1) {
-    init_vue(8);
-    lookAt(mvMat, vue_x, vue_y, vue_z, 0, 0, 0, 0, 1, 0);
-    animation_vue(60.0f, 0.0f, -70.0f);
-  }
-}
+
 void rotate_sun(float * m, float angle, float rayon, int x_0, int y_0) {
   //En fonction de du rayon, l'angle et de la position voulu
   //Cette fonction va grâce à la formule trigonométrique nous donner les coordonnée d'un cercle
@@ -312,6 +201,7 @@ void rotate_sun(float * m, float angle, float rayon, int x_0, int y_0) {
 
 /*!\brief la fonction appelée à chaque display. */
 void draw(void) {
+  
   //On initialise nos variables
   float mvMat[16], projMat[16], nmv[16];
   static float x, x_i, y_i, y;
@@ -331,7 +221,9 @@ void draw(void) {
   /* charger la matrice identité dans model-view */
   MIDENTITY(mvMat);
   /* On initalise notre caméra */
-  camera(mvMat);
+  animation_vue(v_x,v_y,v_z);
+  lookAt(mvMat, vue_x, vue_y, vue_z, 0, 0, 0, 0, 1, 0);
+  //camera(mvMat);
   /* On place nos planetes notre Soleil et notre Lune */
   //Soleil//
   memcpy(nmv, mvMat, sizeof nmv);
@@ -341,7 +233,7 @@ void draw(void) {
 
   //Mercure//
   memcpy(nmv, mvMat, sizeof nmv);
-  rotate_sun(nmv, angle +20, 15.0f, 0, 3);
+  rotate_sun(nmv, angle + 20, 15.0f, 0, 3);
   scale(nmv, 0.8f, 1.0f, 0.8f);
   rotate(nmv, a, 0.0f, 0.1f, 0.0f);
   transform_n_raster(_mercure, nmv, projMat);
@@ -377,8 +269,8 @@ void draw(void) {
   //Jupiter//
   memcpy(nmv, mvMat, sizeof nmv);
   rotate_sun(nmv, angle - 10, 49.0f, 0, 0);
-  scale(nmv, 6.0f, 6.8f, 6.0f);
-  rotate(nmv, a, 5.0f, 4.0f, 4.0f);
+  scale(nmv,6.0f,6.8f,6.0f);
+  rotate(nmv, a, 0.0f, 4.0f, 0.0f);
   transform_n_raster(_jupiter, nmv, projMat);
 
   //Saturne//
@@ -398,7 +290,7 @@ void draw(void) {
   //Uranus//
   memcpy(nmv, mvMat, sizeof nmv);
   rotate_sun(nmv, angle - 1, 78.0f, 0, 0);
-  scale(nmv, 1.2f, 1.5f, 1.2f);
+  scale(nmv,1.2f,1.5f,1.2f);
   rotate(nmv, a, 4.0f, 5.0f, 7.0f);
   transform_n_raster(_uranus, nmv, projMat);
 
@@ -409,11 +301,15 @@ void draw(void) {
   rotate(nmv, a, 5.0f, 5.0f, 5.0f);
   transform_n_raster(_neptune, nmv, projMat);
 
-
+  if (stop == 0){
     a += v_a;
     angle += v_angle;
     angle_lune += v_lune;
-
+  }else{
+    a += v_a;
+    angle = 0;
+    angle_lune += v_lune;
+  }
   /* déclarer qu'on a changé (en bas niveau) des pixels du screen  */
   gl4dpScreenHasChanged();
   /* fonction permettant de raffraîchir l'ensemble de la fenêtre*/
@@ -430,36 +326,70 @@ void key(int keycode) {
     v_lune += 0.02;
     break;
   case GL4DK_DOWN:
+    stop = 1;
     v_a -= 0.1;
     v_angle -= 0.01;
     v_lune -= 0.02;
     break;
   case GL4DK_a:
-    vue_soleil = !vue_soleil;
+    stop = 1;
+    v_x = 30.0f;
+    v_y = 0.0f;
+    v_z = 0.0f;
     break;
   case GL4DK_z:
-    vue_mercure = !vue_mercure;
+    stop = 1;
+    v_x = 21.0f;
+    v_y = 0.0f;
+    v_z = 8.0f;
     break;
   case GL4DK_e:
-    vue_venus = !vue_venus;
+    stop = 1;
+    v_x = 20.0f;
+    v_y = 0.0f;
+    v_z = -12.0f;
     break;
   case GL4DK_r:
-    vue_terre = !vue_terre;
+    stop = 1;
+    v_x = -0.0f;
+    v_y = 0.0f;
+    v_z = 35.0f;
     break;
   case GL4DK_t:
-    vue_mars = !vue_mars;
-    break;
-  case GL4DK_y:
-    vue_jupiter = !vue_jupiter;
+    stop = 1;
+    v_x = 29.0f;
+    v_y = 0.0f;
+    v_z = 26.0f;
     break;
   case GL4DK_q:
-    vue_saturne = !vue_saturne;
+    stop = 1;
+    v_x = 50.0f;
+    v_y = 0.0f;
+    v_z = -75.0f;
     break;
   case GL4DK_s:
-    vue_uranus = !vue_uranus;
+    stop = 1;
+    v_x = 65.0f;
+    v_y = 1.0f;
+    v_z = 75.0f;
     break;
   case GL4DK_d:
-    vue_neptune = !vue_neptune;
+    stop = 1;
+    v_x = -70.0f;
+    v_y = 0.0f;
+    v_z = 45.0f;
+    break;
+  case GL4DK_f:
+    stop = 1;
+    v_x = 60.0f;
+    v_y = 0.0f;
+    v_z = -70.0f;
+    break;
+  case GL4DK_v:
+    stop = 0;
+    v_x = 3.0f;
+    v_y = 190.0f;
+    v_z = 0.0f;
     break;
   default:
     break;
