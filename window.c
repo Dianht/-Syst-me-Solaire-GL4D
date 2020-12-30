@@ -69,16 +69,17 @@ static float angle_lune = 0.0f;
 
 static int stop = 0;
 
-static float v_a = 0.1;
-static float v_angle = 0.01;
-static float v_lune = 0.02;
+static float v_a = 0.1f;
+static float v_angle = 0.01f;
+static float v_lune = 0.02f;
 
-static int vue_x = 3.0f;
-static int vue_y = 190.0f;
-static int vue_z = 0.0f;
-static int v_x = 3.0f;
-static int v_y = 190.0f;
-static int v_z = 0.0f;
+static int vue_x = 120.0f;
+static int vue_y = 15.0f;
+static int vue_z = 5.0f;
+
+static int v_x = 120.0f;
+static int v_y = 15.0f;
+static int v_z = 5.0f;
 
 /*!\brief paramètre l'application et lance la boucle infinie. */
 int main(int argc, char ** argv) {
@@ -321,15 +322,14 @@ void draw(void) {
 void key(int keycode) {
   switch (keycode) {
   case GL4DK_UP:
-    v_a += 0.1;
-    v_angle += 0.01;
-    v_lune += 0.02;
+    v_a += 0.01f;
+    v_angle += 0.001f;
+    v_lune += 0.002f;
     break;
   case GL4DK_DOWN:
-    stop = 1;
-    v_a -= 0.1;
-    v_angle -= 0.01;
-    v_lune -= 0.02;
+    v_a -= 0.01f;
+    v_angle -= 0.001f;
+    v_lune -= 0.002f;
     break;
   case GL4DK_a:
     stop = 1;
@@ -390,6 +390,12 @@ void key(int keycode) {
     v_x = 3.0f;
     v_y = 190.0f;
     v_z = 0.0f;
+    break;
+  case GL4DK_c:
+    stop = 0;
+    v_x = 120.0f;
+    v_y = 15.0f;
+    v_z = 5.0f;
     break;
   default:
     break;
