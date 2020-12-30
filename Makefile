@@ -20,8 +20,8 @@ PACKNAME = sc_00_07
 PROGNAME = Planete
 VERSION = 0.3
 distdir = $(PACKNAME)_$(PROGNAME)-$(VERSION)
-HEADERS = moteur.h
-SOURCES = window.c primitives.c transformations.c scene.c geometry.c
+HEADERS = moteur.h pile.h
+SOURCES = window.c primitives.c transformations.c scene.c geometry.c pile.c
 MSVCSRC = $(patsubst %,<ClCompile Include=\"%\\\" \\/>,$(SOURCES))
 OBJ = $(SOURCES:.c=.o)
 DOXYFILE = documentation/Doxyfile

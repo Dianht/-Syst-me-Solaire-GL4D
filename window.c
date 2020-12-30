@@ -14,6 +14,7 @@
 #include <GL4D/gl4dp.h>
 /* inclure notre bibliothèque "maison" de rendu */
 #include "moteur.h"
+#include "pile.h"
 
 /* inclusion des entêtes de fonctions de création et de gestion de
  * fenêtres système ouvrant un contexte favorable à GL4dummies. Cette
@@ -34,6 +35,7 @@ static void sortie(void);
 static GLuint _screenId = 0;
 
 /*!\brief une surface représentant un quadrilatère */
+static surface_t * _planetes = NULL;
 static surface_t * _soleil = NULL;
 static surface_t * _mercure = NULL;
 static surface_t * _venus = NULL;
@@ -118,75 +120,34 @@ void init(void) {
   int i;
   GLuint id[10];
   vec4 w = {1, 1, 1, 1};
-  /* on créé nos trois type de surfaces */
- for(i = 0;i < 10;i++){
-   id[i] = getTexFromBMP(planete_tex[i]);
+
+  //On utilice ici une pile afin d'eviter d'avoir 1000 lignes de codes
+  for(i = 0;i < 10;i++){
+    id[i] = getTexFromBMP(planete_tex[i]);
+    _planetes = mkSphere(30, 30); 
+    _planetes->dcolor = w; 
+    setTexId(_planetes, id[i]);
+    enableSurfaceOption(_planetes, SO_USE_TEXTURE);
+    enableSurfaceOption(_planetes, SO_USE_LIGHTING);
+    push(_planetes);
  }
-  _soleil = mkSphere(30, 30); 
-  _soleil->dcolor = w; 
-  setTexId(_soleil, id[0]);
-  enableSurfaceOption(_soleil, SO_USE_TEXTURE);
-  
-  _mercure = mkSphere(30, 30); 
-  _mercure->dcolor = w; 
-  setTexId(_mercure, id[1]);
-  enableSurfaceOption(_mercure, SO_USE_TEXTURE);
-  enableSurfaceOption(_mercure, SO_USE_LIGHTING);
+  _planete = malloc(_nb_planete * sizeof * _planete);
 
-  _venus = mkSphere(30, 30); 
-  _venus->dcolor = w; 
-  setTexId(_venus, id[2]);
-  enableSurfaceOption(_venus, SO_USE_TEXTURE);
-  enableSurfaceOption(_venus, SO_USE_LIGHTING);
+  _neptune = pop(); 
+  _uranus = pop(); 
+  _saturne = pop(); 
+  _jupiter = pop(); 
+  _mars = pop(); 
+  _lune = pop(); 
+  _terre = pop(); 
+  _venus = pop(); 
+  _mercure = pop(); 
+  _soleil = pop(); 
 
-
-  _terre = mkSphere(30, 30); 
-  _terre->dcolor = w; 
-  setTexId(_terre, id[3]);
-  enableSurfaceOption(_terre, SO_USE_TEXTURE);
-  enableSurfaceOption(_terre, SO_USE_LIGHTING);
-  
-  _lune = mkSphere(30, 30); 
-  _lune->dcolor = w; 
-  setTexId(_lune, id[4]);
-  enableSurfaceOption(_lune, SO_USE_TEXTURE);
-  enableSurfaceOption(_lune, SO_USE_LIGHTING);
-
-  _mars = mkSphere(30, 30); 
-  _mars->dcolor = w; 
-  setTexId(_mars, id[5]);
-  enableSurfaceOption(_mars, SO_USE_TEXTURE);
-  enableSurfaceOption(_mars, SO_USE_LIGHTING);
-
-  _jupiter = mkSphere(30, 30); 
-  _jupiter->dcolor = w; 
-  setTexId(_jupiter, id[6]);
-  enableSurfaceOption(_jupiter, SO_USE_TEXTURE);
-  enableSurfaceOption(_jupiter, SO_USE_LIGHTING);
-
-  _saturne = mkSphere(30, 30); 
-  _saturne->dcolor = w; 
-  setTexId(_saturne, id[7]);
-  enableSurfaceOption(_saturne, SO_USE_TEXTURE);
-  enableSurfaceOption(_saturne, SO_USE_LIGHTING);
-  
   _dsaturne = mkDisk(30, 30); 
   _dsaturne->dcolor = w; 
   setTexId(_dsaturne, id[7]);
   enableSurfaceOption(_dsaturne, SO_USE_TEXTURE);
-
-
-  _uranus = mkSphere(30, 30); 
-  _uranus->dcolor = w; 
-  setTexId(_uranus, id[8]);
-  enableSurfaceOption(_uranus, SO_USE_TEXTURE);
-  enableSurfaceOption(_uranus, SO_USE_LIGHTING);
-  
-  _neptune = mkSphere(30, 30); 
-  _neptune->dcolor = w; 
-  setTexId(_neptune, id[9]);
-  enableSurfaceOption(_neptune, SO_USE_TEXTURE);
-  enableSurfaceOption(_neptune, SO_USE_LIGHTING);
 
   atexit(sortie);
 }
