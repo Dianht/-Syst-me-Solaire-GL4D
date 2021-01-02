@@ -32,7 +32,7 @@ Les touches haut et bas servent à accélérer/décélérer le temps.
 ↓ - Décélérer le temps
 ```
 
-Les touches suivantes serviront à visualiser en grand un astre :
+Les touches suivantes serviront à visualiser en grand un astre et pour changer le point de vue de la caméra :
 
 ```
 a - Le Soleil
@@ -44,6 +44,8 @@ q - Jupiter
 s - Saturne et le disque de Saturne
 d - Uranus
 f - Neptune
+c - Vue par défaut
+v - Vue pour visualiser l'orbite de chaque planète
 ```
 ## Libraire utilisé
 * [GL4D](https://github.com/noalien/GL4Dummies) 
