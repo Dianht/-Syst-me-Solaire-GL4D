@@ -17,7 +17,7 @@ CPPFLAGS = -I.
 LDFLAGS = -lm
 # définition des fichiers et dossiers
 PACKNAME = sc_00_07
-PROGNAME = Planete
+PROGNAME = systeme_solaire
 VERSION = 0.3
 distdir = $(PACKNAME)_$(PROGNAME)-$(VERSION)
 HEADERS = moteur.h pile.h
