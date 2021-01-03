@@ -36,10 +36,11 @@ static void collision(float coord_x[],float coord_y[]);
 static void animation_vue(float x, float y, float z);
 static void rotate_sun(float * m, float angle, float rayon, float x_0, float y_0,float *coord_x,float *coord_y);
 static void sortie(void);
+
 /*!\brief un identifiant pour l'écran (de dessin) */
 static GLuint _screenId = 0;
 
-/*!\brief une surface représentant un quadrilatère */
+/* brief des surfaces représentants une sphere */
 static surface_t * _astres = NULL;
 static surface_t * _soleil = NULL;
 static surface_t * _mercure = NULL;
@@ -53,8 +54,8 @@ static surface_t * _dsaturne = NULL;
 static surface_t * _uranus = NULL;
 static surface_t * _neptune = NULL;
 
-/*!\brief une surface représentant un cube */
-const char * planete_tex[NB_ASTRE] = {
+// On charge nos textures dans la variable
+const char * astres_tex[NB_ASTRE] = {
   "images/Soleil.bmp",
   "images/Mercure.bmp",
   "images/Venus.bmp",
@@ -138,7 +139,7 @@ void init(void) {
   //On utilice ici une pile afin d'eviter d'avoir 1000 lignes de codes
   for (i = 0; i < NB_ASTRE; i++) {
     //On recupere notre image d'astre
-    id[i] = getTexFromBMP(planete_tex[i]);
+    id[i] = getTexFromBMP(astres_tex[i]);
     //On crée une sphere ou un disque pour saturne
     if(i == 8) _astres = mkDisk(30, 30);
     else _astres = mkSphere(30, 30);
