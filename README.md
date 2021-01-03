@@ -1,20 +1,20 @@
-# Systeme Solaire
+# Systeme Solaire 🪐
 
 Modélisation du Systeme Solaire
 
-## Fonctionnalités attendues
+## Fonctionnalités attendues ✨
 
 - [✓] Modéliser et texturer le soleil, les planètes et leurs lunes ;
 - [✓] Pouvoir accélérer/décélérer le temps ;
 - [✓]  Avoir des raccourcis pour visualiser en grand chaque astre et ses lunes quand il en a ;
 - [✓]  Avoir des raccourcis pour visualiser l’orbite de chaque planète autour du soleil (de manière orthogonale au plan de l’orbite).
 
-## Bonus
+## Bonus ✨
 
 - [✓] Pouvoir se déplacer dans l'Espace
 - [✓] Collision des Astres au cas où
 
-## Comment le récuperer ?
+## Comment le récuperer ? 
 
 Faîtes un : 
 ```
@@ -22,7 +22,7 @@ git clone https://code.up8.edu/DinathSh/systeme-solaire.git
 ```
 dans votre terminal
 
-## Comment l'executer ?
+## Comment l'executer ? 
 ```
 make
 ```
@@ -30,7 +30,7 @@ make
 ```
 ./systeme_solaire
 ```
-## Comment l'utiliser ?
+## Comment l'utiliser ? 
 Les touches + et - serviront à accélérer/décélérer le temps.
 ```
 + - Accélérer le temps
@@ -71,5 +71,5 @@ Une fois la touche v activé, les touches suivantes seront disponibles pour visu
 7 - Orbite de Neptune
 ```
 
-## Libraire utilisé
+## Libraire utilisé 
 * [GL4D](https://github.com/noalien/GL4Dummies) 
