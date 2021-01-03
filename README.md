@@ -59,5 +59,17 @@ f - Neptune
 c - Vue par défaut
 v - Vue pour visualiser l'orbite de chaque planète
 ```
+Une fois la touche v activé, les touches suivantes seront disponibles pour visualiser les orbites de chaque astre.
+```
+0 - Orbite de Mercure
+1 - Orbite de Venus
+2 - Orbite de la Terre
+3 - Orbite de Mars
+4 - Orbite de Jupiter
+5 - Orbite de Saturne
+6 - Orbite d'Uranus
+7 - Orbite de Neptune
+```
+
 ## Libraire utilisé
 * [GL4D](https://github.com/noalien/GL4Dummies) 
