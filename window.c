@@ -27,6 +27,7 @@
 
 //Nombre d'astres dans le Systeme solaire
 #define NB_ASTRE 11
+
 /* protos de fonctions locales (static) */
 static void init(void);
 static void draw(void);
@@ -39,7 +40,7 @@ static void sortie(void);
 static GLuint _screenId = 0;
 
 /*!\brief une surface représentant un quadrilatère */
-static surface_t * _planetes = NULL;
+static surface_t * _astres = NULL;
 static surface_t * _soleil = NULL;
 static surface_t * _mercure = NULL;
 static surface_t * _venus = NULL;
@@ -51,6 +52,7 @@ static surface_t * _saturne = NULL;
 static surface_t * _dsaturne = NULL;
 static surface_t * _uranus = NULL;
 static surface_t * _neptune = NULL;
+
 /*!\brief une surface représentant un cube */
 const char * planete_tex[NB_ASTRE] = {
   "images/Soleil.bmp",
@@ -67,27 +69,29 @@ const char * planete_tex[NB_ASTRE] = {
 
 };
 
-/*!\brief on peut bouger la caméra vers le haut et vers le bas avec cette variable */
+//L'angle pour la rotation autour de lui-même,autour du soleil et autour de la lune
 static float a = 0.0f;
 static float angle = 0.0f;
 static float angle_lune = 0.0f;
-
+//Variable qui permettra de pouvoir arreter les mouvements des rotations
 static int stop = 0;
+//Variable qui permettra en cas de collision d'arrêter la simulation
 static int ok = 0;
-
+//Variables qui va incrémenter les angles 
 static float v_a = 0.1f;
 static float v_angle = 0.01f;
 static float v_lune = 0.02f;
-
+//Variables qui permettront de changer le point de vue de la caméra
 static int vue_x = 120.0f;
 static int vue_y = 15.0f;
 static int vue_z = 5.0f;
-
 static int v_x = 120.0f;
 static int v_y = 15.0f;
 static int v_z = 5.0f;
+//Tableau qui permet d'obtenir les coordonnée de chaque astres
 static float coord_x[NB_ASTRE];
 static float coord_y[NB_ASTRE];
+//Tableau qui va octroier à chaque astre le rayon correspondant
 const float rayon[NB_ASTRE] = {10.0f,0.8f,1.2f,1.5f,0.4f,1.3f,6.0f,5.0f,8.0f,1.2f,1.5f};
 
 /*!\brief paramètre l'application et lance la boucle infinie. */
@@ -133,20 +137,20 @@ void init(void) {
 
   //On utilice ici une pile afin d'eviter d'avoir 1000 lignes de codes
   for (i = 0; i < NB_ASTRE; i++) {
-    //On recupere notre image de planete
+    //On recupere notre image d'astre
     id[i] = getTexFromBMP(planete_tex[i]);
-    //On crée un sphere ou un disque pour saturne
-    if(i == 8) _planetes = mkDisk(30, 30);
-    else _planetes = mkSphere(30, 30);
+    //On crée une sphere ou un disque pour saturne
+    if(i == 8) _astres = mkDisk(30, 30);
+    else _astres = mkSphere(30, 30);
     //On lui ajoute une couleur blanche pour que l'image ne soit pas teinté de couleur
-    _planetes -> dcolor = w;
+    _astres -> dcolor = w;
     //On lui envoie notre image
-    setTexId(_planetes, id[i]);
+    setTexId(_astres, id[i]);
     //On lui fait activer notre texture de planete et on active l'ombrage
-    enableSurfaceOption(_planetes, SO_USE_TEXTURE);
-    enableSurfaceOption(_planetes, SO_USE_LIGHTING);
+    enableSurfaceOption(_astres, SO_USE_TEXTURE);
+    enableSurfaceOption(_astres, SO_USE_LIGHTING);
     //On l'empile
-    push(_planetes);
+    push(_astres);
   }
   //On dépile notre pile
   _neptune = pop();
@@ -161,10 +165,6 @@ void init(void) {
   _mercure = pop();
   _soleil = pop();
   //On libere notre surface
-
-  //On crée un disque pour le disque de saturne
-
-
   atexit(sortie);
 }
 
@@ -192,16 +192,21 @@ static void animation_vue(float x, float y, float z) {
 
 /*!\Arrete le programme lors d'une collision entre les astres*/
 void collision(float coord_x[],float coord_y[]){
-  float dx ,dy,distance;
+  float dx ,dy,distance,somme_rayon;
   int i;
   for(i = 0; i < NB_ASTRE - 1;i++){
     //On ignore Saturne, car c'est le disque de Saturne qui peut être en contact avec d'autre astres
     if(i == 6) i += 1;
     else{
+      //Pour savoir si il y a une collision entre deux astres
+      //On utilise la formule ci dessous
       dx = coord_x[i + 1] - coord_x[i];
       dy = coord_y[i + 1] - coord_y[i];
       distance = sqrtf(dx * dx + dy * dy);
-      if (distance < rayon[i] + rayon[i + 1]) {
+      somme_rayon = rayon[i] + rayon[i + 1];
+      //Si la distance entre les deux astres est inférieur à la somme des rayons des 
+      //deux cercles, il y a donc collision
+      if (distance < somme_rayon) {
         //On arrete le programme
         ok = 1;
       }
@@ -214,7 +219,7 @@ void collision(float coord_x[],float coord_y[]){
 void rotate_sun(float * m, float angle, float rayon, float x_0, float y_0,float *coord_x,float *coord_y) {
   //En fonction de du rayon, l'angle et de la position voulu
   //Cette fonction va grâce à la formule trigonométrique nous donner les coordonnée d'un cercle
-  //Et grâce aux coordonnées , on pourra faire translater les planetes à ces coordonnées pour que les planetes tournent autour du soleil 
+  //Et grâce aux coordonnées , on pourra faire translater les astres à ces coordonnées pour que les astres tournent autour du soleil ou autour de la Terre
   *coord_x = x_0 + cos(angle) * rayon;
   *coord_y = y_0 + sin(angle) * rayon;
 
@@ -223,12 +228,11 @@ void rotate_sun(float * m, float angle, float rayon, float x_0, float y_0,float 
 
 /*!\brief la fonction appelée à chaque display. */
 void draw(void) {
-  
-  if (ok == 0){
   //On initialise nos variables
   float mvMat[16], projMat[16], nmv[16];
   coord_x[0] = 0;
   coord_y[0] = 0;
+  if (ok == 0){
   /* effacer l'écran et le buffer de profondeur */
   gl4dpClearScreen();
   clearDepth();
@@ -242,7 +246,8 @@ void draw(void) {
   /* On initalise notre caméra */
   animation_vue(v_x,v_y,v_z);
   lookAt(mvMat, vue_x, vue_y, vue_z, 0, 0, 0, 0, 1, 0);
-  //camera(mvMat);
+  
+  
   /* On place nos planetes notre Soleil et notre Lune */
   //Soleil//
   memcpy(nmv, mvMat, sizeof nmv);
@@ -322,6 +327,8 @@ void draw(void) {
   
   collision(coord_x,coord_y);
 
+  //Lorsqu'on voudra placer la caméra devant un astre, on devra stopper les mouvements autour du soleil des
+  //astres
   if (stop == 0){
     a += v_a;
     angle += v_angle;
@@ -342,76 +349,105 @@ void draw(void) {
 /*!\brief intercepte l'événement clavier pour modifier les options. */
 void key(int keycode) {
   switch (keycode) {
-  case GL4DK_UP:
+  //Accelere le temps
+  case GL4DK_KP_PLUS:
     v_a += 0.01f;
     v_angle += 0.001f;
     v_lune += 0.002f;
     break;
-  case GL4DK_DOWN:
+  //Decelere le temps
+  case GL4DK_KP_MINUS:
     v_a -= 0.01f;
     v_angle -= 0.001f;
     v_lune -= 0.002f;
     break;
+  //Pour pouvoir se rapprocher de 0 sur l'axe x
+  case GL4DK_UP:
+    v_x -= 1.0f;
+    break;
+  //Pour pouvoir se s'éloigner de 0 sur l'axe x
+  case GL4DK_DOWN:
+    v_x += 1.0f;
+    break;
+  //Pour pouvoir se déplacer à gauche en visant le Soleil
+  case GL4DK_LEFT:
+    v_z += 1.0f;
+    break;
+  //Pour pouvoir se déplacer à droite en visant le Soleil
+  case GL4DK_RIGHT:
+    v_z -= 1.0f;
+    break;
+  //Place la caméra devant le Soleil
   case GL4DK_a:
     stop = 1;
     v_x = 30.0f;
     v_y = 0.0f;
     v_z = 0.0f;
     break;
+  //Place la caméra devant Mercure
   case GL4DK_z:
     stop = 1;
     v_x = 21.0f;
     v_y = 0.0f;
     v_z = 8.0f;
     break;
+  //Place la caméra devant Venus
   case GL4DK_e:
     stop = 1;
     v_x = 20.0f;
     v_y = 0.0f;
     v_z = -12.0f;
     break;
+  //Place la caméra devant la Terre et la Lune
   case GL4DK_r:
     stop = 1;
     v_x = -0.0f;
     v_y = 0.0f;
     v_z = 35.0f;
     break;
+  //Place la caméra devant Mars
   case GL4DK_t:
     stop = 1;
     v_x = 29.0f;
     v_y = 0.0f;
     v_z = 26.0f;
     break;
+  //Place la caméra devant Jupiter
   case GL4DK_q:
     stop = 1;
     v_x = 50.0f;
     v_y = 0.0f;
     v_z = -75.0f;
     break;
+  //Place la caméra Saturne et le Disque de Saturne
   case GL4DK_s:
     stop = 1;
     v_x = 65.0f;
     v_y = 1.0f;
     v_z = 75.0f;
     break;
+  //Place la caméra devant Uranus
   case GL4DK_d:
     stop = 1;
     v_x = -70.0f;
     v_y = 0.0f;
     v_z = 45.0f;
     break;
+  //Place la caméra devant Neptune
   case GL4DK_f:
     stop = 1;
     v_x = 60.0f;
     v_y = 0.0f;
     v_z = -70.0f;
     break;
+  //Pour pouvoir voir les orbites des Astres sur un plan orthogonal
   case GL4DK_v:
     stop = 0;
     v_x = 3.0f;
     v_y = 190.0f;
     v_z = 0.0f;
     break;
+  //Place la caméra sur un point de vue 
   case GL4DK_c:
     stop = 0;
     v_x = 120.0f;

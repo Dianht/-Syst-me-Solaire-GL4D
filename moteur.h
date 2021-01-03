@@ -123,7 +123,6 @@ extern "C" {
     void (*interpolatefunc)(vertex_t *, vertex_t *, vertex_t *, float, float);
     void (*shadingfunc)(surface_t *, GLuint *, vertex_t *);
   };
-  
   /* dans primitives.c */
   extern void transform_n_raster(surface_t * s, float * mvMat, float * projMat);
   extern void clearDepth(void);
