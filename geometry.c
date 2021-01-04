@@ -189,8 +189,7 @@ surface_t * mkDisk(int longitudes, int latitudes) {
     }
   }
   for(z = 0, k = 0; z < latitudes; ++z) {
-      nz = 20 + 1;
-      if (nz > 31) nz = 31;
+      nz = 21;
       zw = z * (longitudes + 1);
       nzw = nz * (longitudes + 1);
       for(x = 0; x < longitudes; ++x) {
@@ -242,8 +241,7 @@ surface_t * mkOrbite(int longitudes, int latitudes) {
     }
   }
   for(z = 0, k = 0; z < latitudes; ++z) {
-      nz = 16 + 1;
-      if (nz > 31) nz = 31;
+      nz = 17;
       zw = z * (longitudes + 1);
       nzw = nz * (longitudes + 1);
       for(x = 0; x < longitudes; ++x) {

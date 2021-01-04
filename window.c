@@ -29,14 +29,13 @@
 
 //Nombre d'astres dans le Systeme solaire
 #define NB_ASTRE 11
-
 /* protos de fonctions locales (static) */
 static void init(void);
 static void draw(void);
 static void key(int keycode);
 static void collision(float coord_x[], float coord_y[]);
 static void animation_vue(float x, float y, float z);
-static void rotate_sun(float * m, float angle, float rayon, float x_0, float y_0, float * coord_x, float * coord_y);
+static void rotate_sun(float * m, float angle, float rayon, float centre_x, float centre_y, float * coord_x, float * coord_y);
 static void sortie(void);
 
 /*!\brief un identifiant pour l'écran (de dessin) */
@@ -243,12 +242,12 @@ void collision(float coord_x[], float coord_y[]) {
 }
 
 /*!\Permet de faire tourner les planetes autour du Soleil */
-void rotate_sun(float * m, float angle, float rayon, float x_0, float y_0, float * coord_x, float * coord_y) {
+void rotate_sun(float * m, float angle, float rayon, float centre_x, float centre_y, float * coord_x, float * coord_y) {
   //En fonction de du rayon, l'angle et de la position voulu
   //Cette fonction va grâce à la formule trigonométrique nous donner les coordonnée d'un cercle
   //Et grâce aux coordonnées , on pourra faire translater les astres à ces coordonnées pour que les astres tournent autour du soleil ou autour de la Terre
-  * coord_x = x_0 + cos(angle) * rayon;
-  * coord_y = y_0 + sin(angle) * rayon;
+  * coord_x = centre_x + cos(angle) * rayon;
+  * coord_y = centre_y + sin(angle) * rayon;
 
   translate(m, * coord_y, 0.0f, * coord_x);
 }
@@ -319,7 +318,7 @@ void draw(void) {
 
     //Mars//
     memcpy(nmv, mvMat, sizeof nmv);
-    rotate_sun(nmv, angle + 1, 35.0f, 4, -4, & coord_x[5], & coord_y[5]);
+    rotate_sun(nmv, angle + 1, 39.0f, 3, -3, & coord_x[5], & coord_y[5]);
     scale(nmv, 1.3f, 1.5f, rayon[5]);
     rotate(nmv, a, 2.0f, 2.0f, 5.0f);
     transform_n_raster(_mars, nmv, projMat);
@@ -447,9 +446,9 @@ void key(int keycode) {
   case GL4DK_t:
     stop = 1;
     vue_orbite = 0;
-    v_x = 29.0f;
+    v_x = 33.0f;
     v_y = 0.0f;
-    v_z = 26.0f;
+    v_z = 27.0f;
     break;
     //Place la caméra devant Jupiter
   case GL4DK_q:
@@ -519,9 +518,9 @@ void key(int keycode) {
     break;
     //Montre l'orbite de Mars
   case GL4DK_KP_3:
-    orbite_r = 35.0f;
-    orbite_x = -4;
-    orbite_y = 4;
+    orbite_r = 39.0f;
+    orbite_x = -3;
+    orbite_y = 3;
     break;
     //Montre l'orbite de Jupiter
   case GL4DK_KP_4:
