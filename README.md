@@ -1,6 +1,6 @@
-# Systeme Solaire 🪐
+# Système Solaire 🪐
 
-Modélisation du Systeme Solaire par Dinath Sunthararajah
+Modélisation du Système Solaire par Dinath Sunthararajah
 
 ## Fonctionnalités attendues ✨
 
